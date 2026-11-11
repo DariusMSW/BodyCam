@@ -842,13 +842,21 @@ function updateWaterFx(dt: number): void {
     const v = player.velocity;
     const f = player.feet;
     const wade = pw.state === 'wade';
+    // Eigene Bewegung = Geschwindigkeit ohne das Mitgeschobenwerden durch die Strömung (Waten: teilweise, je nach
+    // Tiefe; Schwimmen: ganz). Der Spieler hält sich gegen die Strömung → im Stehen strömt das Wasser voll an ihm
+    // vorbei, und es entsteht eine Heckwelle, auch wenn er (wie beim Schwimmen) etwas mittreibt.
+    const drift = wade ? Math.min(pw.depth / 1.3, 1) * 0.6 : 1;
+    const ownX = v.x - pw.flowX * drift;
+    const ownZ = v.z - pw.flowZ * drift;
     // Beine/Körper als Hindernis: Wellen werden reflektiert, Strömung (oder eigenes Gehen) staut sich davor
-    // und wirbelt dahinter — so entstehen auch im Stehen Wellen, wenn das Wasser gegen den Spieler fließt
-    const relX = pw.flowX - v.x;
-    const relZ = pw.flowZ - v.z;
+    // und wirbelt dahinter
+    const relX = pw.flowX - ownX;
+    const relZ = pw.flowZ - ownZ;
     const k = wade ? THREE.MathUtils.clamp(pw.depth / 0.45, 0.25, 1) : 1;
-    waterObstacle(f.x, f.z, wade ? 0.2 : 0.28, relX, relZ, k);
-    const sp = Math.hypot(v.x - pw.flowX, v.z - pw.flowZ);
+    // Heckwelle des Spielers deutlich stärker als bei treibenden Objekten (auch in flachem Wasser gut sichtbar)
+    waterObstacle(f.x, f.z, wade ? 0.2 : 0.28, relX, relZ, k, 2.0 / Math.max(k, 0.6));
+    // Wellenringe nur bei eigener Bewegung — gegen die Strömung im Stehen sorgt die Heckwelle (waterObstacle) für Wellen
+    const sp = Math.hypot(ownX, ownZ);
     wakeTimer -= dt;
     if (sp > 0.3 && wakeTimer <= 0) {
       wakeTimer = 0.12;
@@ -856,7 +864,7 @@ function updateWaterFx(dt: number): void {
     }
     // Stillstehen/Wassertreten: leichtes Schwanken erzeugt immer wieder kleine Ringe
     idleRipple -= dt;
-    if (Math.hypot(v.x, v.z) < 0.5 && idleRipple <= 0) {
+    if (sp < 0.5 && idleRipple <= 0) {
       idleRipple = (wade ? 0.55 : 0.35) + Math.random() * 0.7;
       const a = Math.random() * Math.PI * 2;
       const r = 0.22 + Math.random() * 0.12;

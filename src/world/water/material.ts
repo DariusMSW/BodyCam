@@ -6,6 +6,8 @@ import { WATER_TIME, type WaterLook } from './registry.ts';
 //  - Gerstner-Wellen im Vertex-Shader (dieselben wie waterAt() auf der CPU), in der Ferne ausgeblendet
 //  - Detail-Normalen aus einer kachelbaren Rauschtextur, bei Flüssen per Flow-Map (zweiphasig) in Strömungsrichtung
 //  - Wellenringe aus der GPU-Ripple-Simulation (Schritte, Kugeln, Objekte, Anströmung)
+//  - Heckwellen (Kelvin-Keil) hinter angeströmten Hindernissen, analytisch in Pixelauflösung: schräge Kämme an den
+//    Armen, Querwellen im Keil, unruhiges Kielwasser mit Schaum direkt dahinter
 //  - an Kanten (Hindernis-Maske der Ripple-Simulation): feineres Detail und Strömungsschaum an Ufern/Objekten
 //  - Refraktion: Szene hinter dem Wasser (aufgelöste Farb-/Tiefentextur des MSAA-Puffers), verzerrt durch die Normale
 //  - Tiefenfarbe: Absorption nach Beer-Lambert über die Wasserdicke, Trübung streut zur Wasserfarbe
@@ -15,6 +17,9 @@ import { WATER_TIME, type WaterLook } from './registry.ts';
 
 /** Kameraschicht der Wasserflächen und Spritzer (nur der WaterPass rendert sie) */
 export const WATER_LAYER = 4;
+
+/** so viele Heckwellen (Spieler, treibende Objekte) zeichnet das Material gleichzeitig */
+export const MAX_WAKES = 4;
 
 /** Gemeinsame Uniforms aller Wasser-Materialien (der WaterPass/das Wassersystem setzt sie pro Frame) */
 export const waterShared = {
@@ -34,6 +39,11 @@ export const waterShared = {
   tRippleMask: { value: null as THREE.Texture | null },
   uMaskArea: { value: new THREE.Vector4(0, 0, 96, 0) },
   tDetail: { value: null as THREE.Texture | null },
+  /** Heckwellen: xy = Position, zw = Anströmung (Wasser relativ zum Hindernis, m/s) */
+  uWake: { value: Array.from({ length: MAX_WAKES }, () => new THREE.Vector4()) },
+  /** Heckwellen: x = Stärke (0..1.2), y = Radius (m), z = Zufallswert */
+  uWakeP: { value: Array.from({ length: MAX_WAKES }, () => new THREE.Vector4()) },
+  uWakeN: { value: 0 },
   uSkyZenith: { value: new THREE.Color(0x5a7da8) },
   uSkyHorizon: { value: new THREE.Color(0xa8bccc) },
   uSunDir: { value: new THREE.Vector3(0.3, 0.8, 0.2).normalize() },
@@ -164,6 +174,9 @@ uniform vec4 uRippleArea; // xy = Mitte, z = Größe, w = an
 uniform sampler2D tRippleMask;
 uniform vec4 uMaskArea; // xy = Mitte, z = Größe, w = gültig
 uniform sampler2D tDetail;
+uniform vec4 uWake[${MAX_WAKES}];
+uniform vec4 uWakeP[${MAX_WAKES}];
+uniform int uWakeN;
 uniform vec3 uSkyZenith, uSkyHorizon, uSunDir, uSunColor, uAmbient;
 uniform vec3 uColor;
 uniform float uMurk, uClarity, uFoam, uShore, uDetailScale, uDetailStrength, uDrift;
@@ -237,6 +250,82 @@ vec2 rippleGrad(vec2 p, out float h) {
   return vec2(hx, hz) / (2.0 * e * uRippleArea.z) * k;
 }
 
+/**
+ * Heckwellen aller angeströmten Hindernisse: xy = Gradient (Steigung), z = Schaum.
+ * Kelvin-Keil im Hindernis-System (a = stromabwärts, c = quer): Wellenlänge λ = 2π v²/g (begrenzt), das Muster steht
+ * relativ zum Hindernis (das Wasser strömt hindurch), nur ein leichtes Flimmern läuft mit.
+ */
+vec3 wakes(vec2 p) {
+  vec3 o = vec3(0.0);
+  for (int i = 0; i < ${MAX_WAKES}; i++) {
+    if (i >= uWakeN) break;
+    vec4 W = uWake[i];
+    vec4 P = uWakeP[i];
+    vec2 f = W.zw;
+    float u = length(f);
+    if (u < 0.06) continue;
+    vec2 fd = f / u;
+    vec2 d = p - W.xy;
+    float a = dot(d, fd);
+    float L = 2.0 + min(u, 2.5) * 4.0;
+    float r = P.y;
+    if (a < -r - 0.6 || a > L || dot(d, d) > (L + 1.0) * (L + 1.0)) continue;
+    vec2 side = vec2(-fd.y, fd.x);
+    float cs = dot(d, side);
+    float c = abs(cs);
+    vec2 dc = side * sign(cs + 1e-5);
+    float s = P.x * smoothstep(0.06, 0.45, u);
+    float tt = uWaterTime;
+
+    // Bugwelle: ein Kamm vor dem Hindernis, der seitlich in die Arme übergeht
+    float bowR = r + 0.12 + u * 0.06;
+    float rr = length(d);
+    float bowE = exp(-pow((rr - bowR) / 0.07, 2.0)) * smoothstep(0.2, -0.6, a / max(rr, 1e-3)) * s;
+    o.xy += (d / max(rr, 1e-3)) * (-2.0 * (rr - bowR) / (0.07 * 0.07)) * bowE * 0.012;
+    o.z += bowE * 0.4;
+    if (a <= 0.0) continue;
+
+    float lam = clamp(6.283 * u * u / 9.81, 0.24, 1.6);
+    float kT = 6.283 / lam;
+    float kD = kT * 1.7;
+    // Abklingen nach hinten (Energie verteilt sich auf den wachsenden Keil), weich auslaufen
+    float decay = smoothstep(0.0, r + 0.15, a) * inversesqrt(1.0 + a * 0.9) * (1.0 - smoothstep(L * 0.55, L, a));
+    float W2 = r * 0.9 + a * 0.354; // Keilrand (19,5°)
+
+    // schräge Kämme an den Armen (Wellenvektor ~55° zur Bahn, nach außen)
+    // Hülle: außen am Keilrand am stärksten, nach innen weich auslaufend (kurze, gefiederte Kämme statt Linien)
+    float wA = 0.1 + a * 0.09;
+    float dx = (c - W2 * 0.9) / wA;
+    float armE = exp(-dx * dx * (dx > 0.0 ? 2.5 : 0.6));
+    float phD = kD * (0.82 * a - 0.57 * c) - tt * 1.3 + P.z * 6.283;
+    float eD = armE * decay * s;
+    // leicht spitze Kämme (Trochoide): Steigung vor dem Kamm steiler als dahinter
+    float sD = sin(phD);
+    o.xy += cos(phD) * (1.0 + 0.45 * sD) * (fd * 0.82 - dc * 0.57) * eD * 0.6;
+    o.z += smoothstep(0.55, 1.0, sD) * eD * smoothstep(0.2, 1.0, a) * (1.0 - smoothstep(1.0, 3.5, a)) * 0.45;
+
+    // Querwellen im Keil (gebogene Kämme, zur Mitte hin vorne)
+    float inner = 1.0 - smoothstep(W2 * 0.5, W2 * 0.95, c);
+    float phT = kT * (a + c * c * 0.35 / max(a, 0.3)) - tt * 0.9 + P.z * 3.1;
+    float eT = inner * decay * s * 0.55;
+    o.xy += cos(phT) * (1.0 + 0.45 * sin(phT)) * (fd + dc * (0.7 * c / max(a, 0.3))) * eT * 0.35;
+
+    // Kielwasser: unruhiger, schäumender Streifen direkt hinter dem Hindernis (schmal beginnend, aufgefächert)
+    float kw = r * 0.8 + a * 0.16;
+    float kE = (1.0 - smoothstep(kw * 0.5, kw, c)) * (1.0 - smoothstep(0.4, 1.2 + u * 1.6, a)) * smoothstep(0.0, r * 0.6, a) * s;
+    if (kE > 0.002) {
+      vec2 q = vec2(a - tt * (0.4 + u * 0.7), cs) * 1.3 + P.z * 13.0;
+      vec2 n1 = texture2D(tDetail, q * 0.31).rg * 2.0 - 1.0;
+      vec2 n2 = texture2D(tDetail, q * 0.67 + vec2(0.37, tt * 0.05)).rg * 2.0 - 1.0;
+      vec2 tg = n1 + n2 * 0.6;
+      o.xy += (fd * tg.x + side * tg.y) * kE * 0.28;
+      float fn = texture2D(tDetail, q * 0.45 + 0.21).b * 0.65 + texture2D(tDetail, q * 1.3 - 0.4).b * 0.35;
+      o.z += smoothstep(0.55, 0.85, fn + kE * 0.15 - a * 0.05) * kE * 0.75;
+    }
+  }
+  return o;
+}
+
 /** Nähe zur nächsten Kante/zum nächsten Objekt (0..1, 1 = direkt daneben) aus der Hindernis-Maske */
 float edgeNear(vec2 p) {
   if (uMaskArea.w < 0.5) return 0.0;
@@ -272,7 +361,8 @@ void main() {
   vec2 rg = rippleGrad(vWPos.xz, rh);
   // Wellenringe nah an der Kamera deutlicher (Waten, Schritte, Bugwelle)
   float rk = 1.6 + nearCam * 1.4;
-  vec3 N = normalize(vWaveN + vec3(-g.x - rg.x * rk, 0.0, -g.y - rg.y * rk));
+  vec3 wk = uWakeN > 0 && nearCam > 0.0 ? wakes(vWPos.xz) * nearCam : vec3(0.0);
+  vec3 N = normalize(vWaveN + vec3(-g.x - rg.x * rk - wk.x, 0.0, -g.y - rg.y * rk - wk.y));
   if (!front) N = -N;
 
   vec2 suv = gl_FragCoord.xy / uScreen;
@@ -346,7 +436,8 @@ void main() {
     // angeströmte Kanten/Objekte: Schaumstreifen und Wirbel
     float edgeFoam = edgeK * edgeK * smoothstep(0.25, 1.5, flowSp) * 0.8;
     float rippleFoam = clamp(rh * 6.0, 0.0, 1.0) * 0.6 + smoothstep(0.35, 1.2, length(rg)) * 0.25 * nearCam;
-    float foam = clamp((shore * 1.2 + crest * 0.8 + flowFoam + edgeFoam + rippleFoam) * uFoam, 0.0, 1.0);
+    float wakeFoam = wk.z * (0.6 + uFoam * 0.4);
+    float foam = clamp((shore * 1.2 + crest * 0.8 + flowFoam + edgeFoam + rippleFoam) * uFoam + wakeFoam, 0.0, 1.0);
     foam *= smoothstep(0.25, 0.75, fn + foam * 0.35);
     col = mix(col, light * 0.95, foam);
   } else {

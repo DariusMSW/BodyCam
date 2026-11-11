@@ -146,15 +146,17 @@ export interface WaterObstacle {
   flowZ: number;
   /** Stärke der Wellen an der Anströmseite/im Kielwasser (0..1) */
   strength: number;
+  /** Faktor für die Heckwelle (V-förmige Wellen stromabwärts), Standard 1 */
+  wake: number;
 }
 
 export const MAX_OBSTACLES = 8;
 const obstacles: WaterObstacle[] = [];
 
 /** Hindernis für diesen Frame melden: Wellen werden daran reflektiert, Anströmung erzeugt Bugwelle und Wirbel */
-export function waterObstacle(x: number, z: number, radius: number, flowX: number, flowZ: number, strength = 1): void {
+export function waterObstacle(x: number, z: number, radius: number, flowX: number, flowZ: number, strength = 1, wake = 1): void {
   if (!bodies.size || obstacles.length >= MAX_OBSTACLES) return;
-  obstacles.push({ x, z, radius, flowX, flowZ, strength });
+  obstacles.push({ x, z, radius, flowX, flowZ, strength, wake });
 }
 
 /** Hindernisse abholen (leert die Liste) */

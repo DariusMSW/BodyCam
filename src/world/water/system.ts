@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { Pass } from 'three/examples/jsm/postprocessing/Pass.js';
 import type { WorldRig } from '../mapLoader.ts';
-import { WATER_LAYER, waterShared } from './material.ts';
+import { MAX_WAKES, WATER_LAYER, waterShared } from './material.ts';
 import { advanceWater, takeImpulses, takeObstacles, takeSplashes, waterAt, waterBodies, type WaterSample } from './registry.ts';
 import { RippleMask } from './rippleMask.ts';
 import { RippleSim } from './ripples.ts';
@@ -122,7 +122,22 @@ export class WaterSystem {
       this.mask.update(dt, cam.x, cam.z, refY, this.scene, hidden);
     } else this.mask.reset();
     this.ripples.add(takeImpulses());
-    this.ripples.setObstacles(takeObstacles());
+    const obstacles = takeObstacles();
+    this.ripples.setObstacles(obstacles);
+    // Heckwellen fürs Material: die am stärksten angeströmten Hindernisse
+    {
+      const list = obstacles
+        .filter((o) => o.wake > 0 && Math.hypot(o.flowX, o.flowZ) > 0.06)
+        .sort((a, b) => b.strength * b.wake - a.strength * a.wake)
+        .slice(0, MAX_WAKES);
+      const W = waterShared.uWake.value;
+      const P = waterShared.uWakeP.value;
+      list.forEach((o, i) => {
+        W[i].set(o.x, o.z, o.flowX, o.flowZ);
+        P[i].set(Math.min(1.2, o.strength * o.wake * 0.5), o.radius, (i * 0.618) % 1, 0);
+      });
+      waterShared.uWakeN.value = near ? list.length : 0;
+    }
     this.ripples.update(dt, cam.x, cam.z, near);
     waterShared.tRipple.value = this.ripples.texture;
     for (const s of takeSplashes()) this.splashes.spawn(s);

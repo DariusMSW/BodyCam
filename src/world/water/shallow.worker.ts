@@ -7,7 +7,22 @@ import { ShallowWater, decodeSim, encodeSim, type SimParams, type SimSource } fr
 //  - bake:  vom trockenen Zustand `seconds` vorrechnen; zwischendurch progress + frame, am Ende baked (komprimiert)
 
 export type SimRequest =
-  | { type: 'init'; nx: number; nz: number; cell: number; minX: number; minZ: number; ground?: Float32Array; state?: Uint8Array; sources: SimSource[]; params: SimParams }
+  | {
+      type: 'init';
+      nx: number;
+      nz: number;
+      cell: number;
+      minX: number;
+      minZ: number;
+      ground?: Float32Array;
+      /** Kanten-Daten zu `ground` (Wände zwischen Zellen) */
+      edges?: Float32Array;
+      state?: Uint8Array;
+      sources: SimSource[];
+      params: SimParams;
+      /** Kennung des Quellen-Verbunds (wird mit dem Zustand gespeichert) */
+      sig: number;
+    }
   | { type: 'step'; dt: number; reuse?: SimFrame }
   | { type: 'bake'; seconds: number; reset: boolean };
 
@@ -31,6 +46,7 @@ const ctx = self as unknown as WorkerScope;
 let sim: ShallowWater | null = null;
 let minX = 0;
 let minZ = 0;
+let sig = 0;
 
 function frame(reuse?: SimFrame): void {
   if (!sim) return;
@@ -50,8 +66,9 @@ ctx.onmessage = (e: MessageEvent<SimRequest>) => {
       case 'init': {
         minX = m.minX;
         minZ = m.minZ;
+        sig = m.sig;
         const loaded = m.state ? decodeSim(m.state) : null;
-        sim = loaded ? loaded.sim : new ShallowWater(m.nx, m.nz, m.cell, m.ground ?? new Float32Array(m.nx * m.nz));
+        sim = loaded ? loaded.sim : new ShallowWater(m.nx, m.nz, m.cell, m.ground ?? new Float32Array(m.nx * m.nz), m.edges ?? null);
         sim.params = m.params;
         sim.setSources(m.sources);
         frame();
@@ -94,7 +111,7 @@ ctx.onmessage = (e: MessageEvent<SimRequest>) => {
           }
         }
         frame();
-        const bytes = zlibSync(encodeSim(s, minX, minZ), { level: 6 });
+        const bytes = zlibSync(encodeSim(s, minX, minZ, sig, Date.now()), { level: 6 });
         const done: SimResponse = { type: 'baked', bytes, time: s.time, volume: s.volume(), wet: s.wetCount() };
         ctx.postMessage(done, [bytes.buffer]);
         break;

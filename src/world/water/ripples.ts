@@ -132,8 +132,33 @@ void main() {
     float sp = length(f);
     vec2 d = wp - O.xy;
     float dist = length(d);
+    if (sp < 0.03) continue;
+    // Heckwelle: V-förmige Wellenkämme stromabwärts (Kelvin-Winkel ~19°, mit Abstand breiter und schwächer).
+    // Kämme laufen langsam nach hinten weg; Wellenlänge wächst mit der Anströmung (λ = 2π v² / g).
+    // Nur schwach: das scharfe Bild zeichnet das Wasser-Material (wakes()); hier geht es um Bewegung im Wellenfeld,
+    // die an Wänden reflektiert wird (stark angeregt würde das grobe Gitter Ringe um den Spieler abstrahlen)
+    if (sp > 0.15) {
+      vec2 fd = f / sp;
+      float a = dot(d, fd);
+      float sv = min(sp, 2.5);
+      float wk = uObsF[i].z;
+      float L = (1.5 + sv * 2.6) * (0.75 + 0.25 * min(wk, 2.0));
+      if (a > 0.0 && a < L) {
+        float cr = abs(fd.x * d.y - fd.y * d.x);
+        float spread = O.z * 0.8 + a * 0.36;
+        float wdt = 0.08 + a * 0.07;
+        float arm = exp(-(cr - spread) * (cr - spread) / (wdt * wdt));
+        // Querwellen innerhalb des Keils (schwächer)
+        float inner = (1.0 - smoothstep(spread * 0.6, spread, cr)) * 0.3;
+        float lam = clamp(6.283 * sv * sv / 9.81, 0.32, 1.4);
+        float fade = smoothstep(0.0, O.z + 0.25, a) * (1.0 - a / L) * (1.0 - a / L);
+        float phA = 6.283 * (a - cr * 0.7) / lam - uTime * 6.283 * (0.35 + sv * 0.4) / lam;
+        float phI = 6.283 * a / lam - uTime * 6.283 * (0.35 + sv * 0.4) / lam;
+        n += fade * O.w * wk * min(sv, 1.6) * (arm * sin(phA) + inner * sin(phI)) * 0.003;
+      }
+    }
     float rim = 1.0 - smoothstep(O.z, O.z + 0.7, dist);
-    if (rim <= 0.0 || sp < 0.03) continue;
+    if (rim <= 0.0) continue;
     vec2 nrm = -d / max(dist, 1e-3);
     float face = dot(f, nrm) / sp;
     float s = min(sp, 2.5) * O.w;
@@ -212,7 +237,7 @@ export class RippleSim {
     for (let i = 0; i < n; i++) {
       const o = list[i];
       u.uObs.value[i].set(o.x, o.z, o.radius, o.strength);
-      u.uObsF.value[i].set(o.flowX, o.flowZ, 0, 0);
+      u.uObsF.value[i].set(o.flowX, o.flowZ, o.wake, 0);
     }
     u.uObsN.value = n;
   }
