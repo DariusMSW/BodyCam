@@ -3,13 +3,14 @@ import type { Collider } from '../world/collision.ts';
 import { SCALE } from '../world/collision.ts';
 import { refreshColliders, type MapNode } from '../world/mapLoader.ts';
 import { isWeatherType, type WeatherType } from '../world/weather.ts';
+import { playFile, playSound, startLoop, type SoundLoop } from '../audio/scriptSounds.ts';
 
 // Script-Runtime für Map-Objekte. Die Blöcke aus dem Editor werden zu JavaScript übersetzt
 // (scripting/blocks.ts), das hier gegen eine kleine API pro Objekt läuft:
 //   api.on('start', async () => { await api.glideBy(0, 2, 0, 1); ... });
 // Wie in Scratch geben Schleifen pro Durchlauf einen Frame ab (api.frame()), damit nichts einfriert.
 
-export type ScriptEvent = 'start' | 'tick' | 'interact' | 'hit' | 'enter' | 'leave' | 'near' | 'key' | 'message';
+export type ScriptEvent = 'start' | 'tick' | 'interact' | 'partInteract' | 'hit' | 'enter' | 'leave' | 'near' | 'key' | 'message';
 
 export interface RuntimeHost {
   /** Fußposition des Spielers (bzw. der Editor-Kamera beim Simulieren) */
@@ -28,6 +29,8 @@ interface Handler {
   event: ScriptEvent;
   fn: () => Promise<void>;
   arg?: string | number;
+  /** für 'partInteract': Name des Modell-Teils */
+  part?: string;
   running: number;
   /** für 'near': war der Spieler zuletzt in Reichweite? */
   inside?: boolean;
@@ -48,6 +51,36 @@ interface Tween {
   resolve: () => void;
 }
 
+type Axis = 'x' | 'y' | 'z';
+
+/** Ein benanntes Teil eines 3D-Modells (Knoten im glb), das ein Script bewegt */
+interface PartState {
+  obj: THREE.Object3D;
+  basePos: THREE.Vector3;
+  baseQuat: THREE.Quaternion;
+  /** Drehung gegenüber der Ruhelage in Grad (Reihenfolge Y, X, Z) */
+  ang: THREE.Vector3;
+  /** Verschiebung gegenüber der Ruhelage in Metern */
+  off: THREE.Vector3;
+  /** Dauerdrehung in Grad pro Sekunde */
+  spin: THREE.Vector3;
+  ownMaterials: boolean;
+}
+
+interface PartTween {
+  part: PartState;
+  kind: 'ang' | 'off';
+  axis?: Axis;
+  from: THREE.Vector3;
+  to: THREE.Vector3;
+  start: number;
+  duration: number;
+  resolve: () => void;
+}
+
+/** Hörweite der Script-Klänge in Metern */
+const SOUND_RANGE = 45;
+
 class StopScript extends Error {}
 
 const DEG = THREE.MathUtils.DEG2RAD;
@@ -58,6 +91,9 @@ interface ObjectScript {
   playerInside: boolean;
   /** Objekt hat eigene (geklonte) Materialien für Farbänderungen */
   ownMaterials: boolean;
+  parts: Map<string, PartState | null>;
+  /** Dauerklänge: Kennung → Klang + eingestellte Lautstärke (0..1) */
+  loops: Map<string, { loop: SoundLoop; volume: number }>;
 }
 
 export class ScriptRuntime {
@@ -67,6 +103,11 @@ export class ScriptRuntime {
   private frameWaiters: (() => void)[] = [];
   private timers: Waiter[] = [];
   private tweens: Tween[] = [];
+  private partTweens: PartTween[] = [];
+  private spinning = new Set<PartState>();
+  private dt = 0;
+  private euler = new THREE.Euler();
+  private quat = new THREE.Quaternion();
   private dirty = new Set<MapNode>();
   private running = false;
   private box = new THREE.Box3();
@@ -85,7 +126,7 @@ export class ScriptRuntime {
     for (const node of this.nodes) {
       const code = node.data.script?.code;
       if (!code?.trim()) continue;
-      const script: ObjectScript = { node, handlers: [], playerInside: false, ownMaterials: false };
+      const script: ObjectScript = { node, handlers: [], playerInside: false, ownMaterials: false, parts: new Map(), loops: new Map() };
       const api = this.makeApi(script);
       try {
         new Function('api', `"use strict";\n${code}`)(api);
@@ -103,6 +144,12 @@ export class ScriptRuntime {
 
   stop(): void {
     this.running = false;
+    for (const s of this.scripts) {
+      for (const l of s.loops.values()) l.loop.stop();
+      s.loops.clear();
+    }
+    this.partTweens = [];
+    this.spinning.clear();
     this.scripts = [];
     this.byNode.clear();
     this.frameWaiters = [];
@@ -117,7 +164,29 @@ export class ScriptRuntime {
   update(dt: number): void {
     if (!this.running) return;
     this.time += dt;
+    this.dt = dt;
     const t = this.time;
+
+    // Modell-Teile: Tweens und Dauerdrehung
+    for (let i = this.partTweens.length - 1; i >= 0; i--) {
+      const tw = this.partTweens[i];
+      const k = tw.duration <= 0 ? 1 : Math.min(1, (t - tw.start) / tw.duration);
+      const e = k * k * (3 - 2 * k);
+      if (tw.kind === 'off') tw.part.off.lerpVectors(tw.from, tw.to, e);
+      else if (tw.axis) tw.part.ang[tw.axis] = THREE.MathUtils.lerp(tw.from[tw.axis], tw.to[tw.axis], e);
+      else tw.part.ang.lerpVectors(tw.from, tw.to, e);
+      this.applyPart(tw.part);
+      if (k >= 1) {
+        this.partTweens.splice(i, 1);
+        tw.resolve();
+      }
+    }
+    for (const p of this.spinning) {
+      p.ang.x = (p.ang.x + p.spin.x * dt) % 360;
+      p.ang.y = (p.ang.y + p.spin.y * dt) % 360;
+      p.ang.z = (p.ang.z + p.spin.z * dt) % 360;
+      this.applyPart(p);
+    }
 
     // Tweens (gleiten / drehen über Zeit)
     for (let i = this.tweens.length - 1; i >= 0; i--) {
@@ -153,6 +222,11 @@ export class ScriptRuntime {
     const body = player.clone();
     body.y += SCALE.playerHeight / 2;
     for (const s of this.scripts) {
+      // Dauerklänge werden mit der Entfernung leiser
+      if (s.loops.size) {
+        const k = this.hearing(s.node);
+        for (const l of s.loops.values()) l.loop.setVolume(l.volume * k);
+      }
       let hasTrigger = false;
       for (const h of s.handlers) {
         if (h.event === 'tick' && h.running === 0) this.run(s, h);
@@ -189,14 +263,32 @@ export class ScriptRuntime {
   }
 
   /** Text für die Benutzen-Anzeige, falls das Objekt ein 'interact'-Script hat */
-  interactPrompt(node: MapNode | null): string | null {
-    const h = node && this.byNode.get(node)?.handlers.find((x) => x.event === 'interact');
+  interactPrompt(node: MapNode | null, hit?: THREE.Object3D | null): string | null {
+    const s = node && this.byNode.get(node);
+    if (!s) return null;
+    const h = this.partHandlers(s, hit)[0] ?? s.handlers.find((x) => x.event === 'interact');
     return h ? String(h.arg || 'Benutzen') : null;
   }
 
-  interact(node: MapNode): void {
+  /** `hit` = getroffenes Mesh: gehört es zu einem Teil mit eigenem „Wenn Spieler Teil … benutzt“, läuft nur das */
+  interact(node: MapNode, hit?: THREE.Object3D | null): void {
     const s = this.byNode.get(node);
-    if (s) this.fire(s, 'interact');
+    if (!s) return;
+    const parts = this.partHandlers(s, hit);
+    if (parts.length) for (const h of parts) this.run(s, h);
+    else this.fire(s, 'interact');
+  }
+
+  /** Handler des innersten Modell-Teils, zu dem das getroffene Mesh gehört */
+  private partHandlers(s: ObjectScript, hit?: THREE.Object3D | null): Handler[] {
+    if (!hit || !s.handlers.some((h) => h.event === 'partInteract')) return [];
+    for (let o: THREE.Object3D | null = hit; o && o !== s.node.root; o = o.parent) {
+      const name = o.name;
+      if (!name) continue;
+      const hs = s.handlers.filter((h) => h.event === 'partInteract' && h.part === name);
+      if (hs.length) return hs;
+    }
+    return [];
   }
 
   hit(node: MapNode): void {
@@ -256,6 +348,32 @@ export class ScriptRuntime {
     return this.box;
   }
 
+  /** Lautstärke-Faktor 0..1 nach Entfernung des Objekts zum Spieler */
+  private hearing(node: MapNode): number {
+    const d = node.root.getWorldPosition(new THREE.Vector3()).distanceTo(this.host.playerPosition());
+    const k = Math.max(0, 1 - d / SOUND_RANGE);
+    return k * k;
+  }
+
+  private applyPart(p: PartState): void {
+    p.obj.position.copy(p.basePos).add(p.off);
+    this.euler.set(p.ang.x * DEG, p.ang.y * DEG, p.ang.z * DEG, 'YXZ');
+    p.obj.quaternion.copy(p.baseQuat).multiply(this.quat.setFromEuler(this.euler));
+  }
+
+  private partTween(part: PartState, kind: 'ang' | 'off', to: THREE.Vector3, sec: number, axis?: Axis): Promise<void> {
+    this.partTweens = this.partTweens.filter((t) => {
+      if (t.part === part && t.kind === kind && (!t.axis || !axis || t.axis === axis)) {
+        t.resolve();
+        return false;
+      }
+      return true;
+    });
+    const from = (kind === 'ang' ? part.ang : part.off).clone();
+    if (!this.running) return new Promise(() => {});
+    return new Promise((resolve) => this.partTweens.push({ part, kind, axis, from, to, start: this.time, duration: sec, resolve }));
+  }
+
   private frame(): Promise<void> {
     if (!this.running) return new Promise(() => {});
     return new Promise((r) => this.frameWaiters.push(r));
@@ -299,11 +417,123 @@ export class ScriptRuntime {
     const light = () => node.instance?.light;
     const fx = () => node.instance?.effect;
     const other = (name: string) => this.nodesByName.get(String(name)) ?? null;
+    const axisOf = (a: unknown): Axis => (a === 'x' || a === 'z' ? a : 'y');
+    /** Modell-Teil per Knotenname; unbekannte Namen werden einmal gemeldet */
+    const part = (name: unknown): PartState | null => {
+      const key = String(name);
+      let p = s.parts.get(key);
+      if (p === undefined) {
+        const obj = node.instance?.object.getObjectByName(key) ?? null;
+        p = obj
+          ? { obj, basePos: obj.position.clone(), baseQuat: obj.quaternion.clone(), ang: new THREE.Vector3(), off: new THREE.Vector3(), spin: new THREE.Vector3(), ownMaterials: false }
+          : null;
+        if (!p) this.host.log?.(`[${node.data.name}] Teil "${key}" gibt es in diesem Modell nicht`, true);
+        s.parts.set(key, p);
+      }
+      return p;
+    };
+    const partMaterials = (p: PartState): THREE.MeshStandardMaterial[] => {
+      const out: THREE.MeshStandardMaterial[] = [];
+      p.obj.traverse((c) => {
+        const m = c as THREE.Mesh;
+        if (!m.isMesh) return;
+        if (!p.ownMaterials) m.material = Array.isArray(m.material) ? m.material.map((x) => x.clone()) : m.material.clone();
+        for (const mat of Array.isArray(m.material) ? m.material : [m.material]) if ((mat as THREE.MeshStandardMaterial).isMeshStandardMaterial) out.push(mat as THREE.MeshStandardMaterial);
+      });
+      p.ownMaterials = true;
+      return out;
+    };
+    const vol = (v: unknown) => Math.min(2, Math.max(0, num(v) / 100));
 
     return {
-      on: (event: ScriptEvent, fn: () => Promise<void>, arg?: string | number) => {
-        s.handlers.push({ event, fn, arg, running: 0 });
+      on: (event: ScriptEvent, fn: () => Promise<void>, arg?: string | number, part?: string) => {
+        s.handlers.push({ event, fn, arg, part, running: 0 });
       },
+      /** Sekunden seit dem letzten Frame (für gleichmäßige Bewegung in „Jeden Frame“) */
+      dt: () => this.dt,
+      // Modell-Teile (Knoten im glb): Türen, Räder, Hauben …
+      partTurnTo: (name: unknown, axis: unknown, deg: unknown, sec: unknown) => {
+        const p = part(name);
+        if (!p) return Promise.resolve();
+        const a = axisOf(axis);
+        const to = p.ang.clone();
+        to[a] = num(deg);
+        return this.partTween(p, 'ang', to, num(sec), a);
+      },
+      partTurnBy: (name: unknown, axis: unknown, deg: unknown, sec: unknown) => {
+        const p = part(name);
+        if (!p) return Promise.resolve();
+        const a = axisOf(axis);
+        const to = p.ang.clone();
+        to[a] += num(deg);
+        return this.partTween(p, 'ang', to, num(sec), a);
+      },
+      partSetAngle: (name: unknown, axis: unknown, deg: unknown) => {
+        const p = part(name);
+        if (!p) return;
+        p.ang[axisOf(axis)] = num(deg);
+        this.applyPart(p);
+      },
+      partSpin: (name: unknown, axis: unknown, degPerSec: unknown) => {
+        const p = part(name);
+        if (!p) return;
+        p.spin[axisOf(axis)] = num(degPerSec);
+        if (p.spin.lengthSq() > 0) this.spinning.add(p);
+        else this.spinning.delete(p);
+      },
+      partMoveTo: (name: unknown, x: unknown, y: unknown, z: unknown, sec: unknown) => {
+        const p = part(name);
+        return p ? this.partTween(p, 'off', new THREE.Vector3(num(x), num(y), num(z)), num(sec)) : Promise.resolve();
+      },
+      partReset: (name: unknown, sec: unknown) => {
+        const p = part(name);
+        if (!p) return Promise.resolve();
+        p.spin.set(0, 0, 0);
+        this.spinning.delete(p);
+        return Promise.all([this.partTween(p, 'ang', new THREE.Vector3(), num(sec)), this.partTween(p, 'off', new THREE.Vector3(), num(sec))]).then(() => {});
+      },
+      partAngle: (name: unknown, axis: unknown) => part(name)?.ang[axisOf(axis)] ?? 0,
+      partShow: (name: unknown, show: boolean) => {
+        const p = part(name);
+        if (p) p.obj.visible = !!show;
+      },
+      partColor: (name: unknown, c: string) => {
+        const p = part(name);
+        if (p) partMaterials(p).forEach((m) => m.color.set(c));
+      },
+      partGlow: (name: unknown, c: string, intensity: unknown) => {
+        const p = part(name);
+        if (p)
+          partMaterials(p).forEach((m) => {
+            m.emissive.set(c);
+            m.emissiveIntensity = num(intensity);
+          });
+      },
+      // Klang
+      sound: (id: unknown, volume: unknown) => playSound(String(id), vol(volume) * this.hearing(node)),
+      soundFile: (name: unknown, volume: unknown) => playFile(String(name), vol(volume) * this.hearing(node)),
+      loopStart: (id: unknown, volume: unknown) => {
+        const key = String(id);
+        const v = vol(volume);
+        const cur = s.loops.get(key);
+        if (cur) {
+          cur.volume = v;
+          return;
+        }
+        const loop = startLoop(key, v * this.hearing(node));
+        if (loop) s.loops.set(key, { loop, volume: v });
+      },
+      loopStop: (id: unknown) => {
+        const key = String(id);
+        s.loops.get(key)?.loop.stop();
+        s.loops.delete(key);
+      },
+      loopPitch: (id: unknown, percent: unknown) => s.loops.get(String(id))?.loop.setPitch(num(percent) / 100),
+      loopVolume: (id: unknown, volume: unknown) => {
+        const l = s.loops.get(String(id));
+        if (l) l.volume = vol(volume);
+      },
+      loopIsOn: (id: unknown) => s.loops.has(String(id)),
       frame: () => this.frame(),
       wait: (sec: unknown) => this.wait(num(sec)),
       stop: () => {

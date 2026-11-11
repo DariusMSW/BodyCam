@@ -214,6 +214,7 @@ async function openDialog(): Promise<void> {
   }
   entry('Startmap (mitgeliefert, src/maps/start.json)', 'Vorlage', () => void openMap(MAPS.start));
   entry('Trainingslevel (mitgeliefert, src/maps/training.json)', 'Vorlage', () => void openMap(MAPS.training));
+  entry('Oldtimer mit Script (mitgeliefert, src/maps/oldtimer.json)', 'Vorlage', () => void openMap(MAPS.oldtimer));
   const body = h('div', {}, h('div', { style: 'color:var(--text-dim)' }, 'Im Browser gespeicherte Maps:'), list);
   close = dialog('Map öffnen', body, [
     {

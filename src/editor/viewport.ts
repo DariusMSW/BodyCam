@@ -756,7 +756,7 @@ export class Viewport {
     if (this.runtime) {
       if (node) {
         if (e.shiftKey) this.runtime.hit(node);
-        else this.runtime.interact(node);
+        else this.runtime.interact(node, this.pickedObject);
       }
       return;
     }
@@ -805,13 +805,20 @@ export class Viewport {
   }
 
   /** Objekt unter dem Mauszeiger (inkl. Icons/Drahtgitter, wenn sichtbar) */
+  /** Mesh des letzten pick()-Treffers (für Teil-Ereignisse beim Simulieren) */
+  private pickedObject: THREE.Object3D | null = null;
+
   pick(x: number, y: number): MapNode | null {
     this.raycaster.setFromCamera(this.ndc(x, y), this.camera);
     this.raycaster.layers.mask = this.camera.layers.mask;
     this.raycaster.params.Line.threshold = 0.06;
     for (const hit of this.raycaster.intersectObjects(this.mapGroup.children, true)) {
-      if (this.pickable(hit.object)) return nodeOf(hit.object);
+      if (this.pickable(hit.object)) {
+        this.pickedObject = hit.object;
+        return nodeOf(hit.object);
+      }
     }
+    this.pickedObject = null;
     return null;
   }
 

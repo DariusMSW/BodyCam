@@ -3,6 +3,7 @@ import { javascriptGenerator, Order } from 'blockly/javascript';
 import * as De from 'blockly/msg/de';
 import { registerFieldColour, colourPicker } from '@blockly/field-colour';
 import { WEATHER_OPTIONS } from '../world/weather.ts';
+import { LOOP_OPTIONS, SOUND_OPTIONS } from '../audio/scriptSounds.ts';
 
 // Scratch-ähnliche Blöcke für Map-Objekte (nur im Editor geladen).
 // Jeder Ereignis-Block ("Wenn ...") wird zu  api.on('<event>', async () => { ... }, <arg>);
@@ -19,7 +20,48 @@ export const CATEGORY_COLOURS = {
   operators: '#59C059',
   variables: '#FF8C1A',
   world: '#FF6680',
+  parts: '#0FBD8C',
+  sound: '#CF63CF',
 };
+
+// ---------- Modell-Teile: Auswahlliste mit den Knotennamen des gerade bearbeiteten Modells ----------
+
+let scriptParts: string[] = [];
+/** Namen, die in geladenen Blöcken stehen — bleiben wählbar, auch wenn das Modell sie (noch) nicht liefert */
+const usedParts = new Set<string>();
+
+/** Vom Script-Editor gesetzt: benannte Teile (glb-Knoten) des Objekts, dessen Script gerade offen ist. Leere Liste = neues Script */
+export function setScriptParts(names: string[]): void {
+  if (!names.length) usedParts.clear();
+  scriptParts = [...names].sort((a, b) => a.localeCompare(b));
+}
+
+const partOptions = (): Blockly.MenuOption[] => {
+  const names = [...scriptParts, ...[...usedParts].filter((n) => !scriptParts.includes(n)).sort()];
+  return names.length ? names.map((n) => [n, n] as [string, string]) : [['(kein Teil)', '']];
+};
+
+/** Auswahlfeld für Teile: nimmt auch Namen an, die (noch) nicht in der Liste stehen — z. B. vor dem Laden des Modells */
+class PartField extends Blockly.FieldDropdown {
+  constructor() {
+    super(partOptions);
+  }
+
+  protected override doClassValidation_(v?: string): string | null {
+    if (typeof v !== 'string') return null;
+    if (v) usedParts.add(v);
+    return v;
+  }
+
+  protected override doValueUpdate_(v: string): void {
+    // Blockly merkt sich die erzeugte Liste — vor dem Übernehmen neu aufbauen, sonst fehlt der eben geladene Name
+    this.getOptions(false);
+    super.doValueUpdate_(v);
+  }
+}
+
+const PART_BLOCKS: string[] = [];
+const part = (): Json => ({ type: 'field_dropdown', name: 'PART', options: [['(kein Teil)', '']] });
 
 const KEY_OPTIONS: [string, string][] = [
   ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map((c) => [c, `Key${c}`] as [string, string]),
@@ -37,6 +79,11 @@ const AXIS: [string, string][] = [
   ['x', 'x'],
   ['y', 'y'],
   ['z', 'z'],
+];
+const AXIS_Y: [string, string][] = [
+  ['y (hoch)', 'y'],
+  ['x (quer)', 'x'],
+  ['z (längs)', 'z'],
 ];
 const ON_OFF: [string, string][] = [
   ['an', 'true'],
@@ -89,6 +136,29 @@ const BLOCKS: Json[] = [
   hat('bc_when_key', 'Wenn Taste %1 gedrückt wird', [{ type: 'field_dropdown', name: 'KEY', options: KEY_OPTIONS }], ''),
   hat('bc_when_message', 'Wenn ich Nachricht %1 empfange', [{ type: 'field_input', name: 'MSG', text: 'Nachricht1' }], 'Reagiert auf "sende Nachricht" von beliebigen Objekten.'),
   stmt('bc_broadcast', 'events', 'sende Nachricht %1', [{ type: 'field_input', name: 'MSG', text: 'Nachricht1' }], 'Alle Objekte mit "Wenn ich Nachricht empfange" reagieren.'),
+
+  // Modell-Teile
+  hat('bc_when_part_interact', 'Wenn Spieler Teil %1 benutzt, Hinweis %2', [part(), { type: 'field_input', name: 'TEXT', text: 'Öffnen' }], 'Spieler schaut genau dieses Teil des Modells an (z. B. eine Tür) und drückt die Benutzen-Taste (E).'),
+  stmt('bc_part_turn_to', 'parts', 'drehe Teil %1 in %2 Sek. auf %3° um Achse %4', [part(), num('S'), num('DEG'), { type: 'field_dropdown', name: 'AXIS', options: AXIS_Y }], 'Winkel gegenüber der Ruhelage: 0° = wie im Modell. Wartet, bis die Drehung fertig ist. Ideal für Türen und Klappen.'),
+  stmt('bc_part_turn_by', 'parts', 'drehe Teil %1 in %2 Sek. um %3° weiter, Achse %4', [part(), num('S'), num('DEG'), { type: 'field_dropdown', name: 'AXIS', options: AXIS_Y }]),
+  stmt('bc_part_set_angle', 'parts', 'setze Winkel von Teil %1 auf %2° um Achse %3', [part(), num('DEG'), { type: 'field_dropdown', name: 'AXIS', options: AXIS_Y }], 'Sofort, ohne Animation — z. B. Lenkeinschlag in „Jeden Frame“.'),
+  stmt('bc_part_spin', 'parts', 'drehe Teil %1 dauerhaft mit %2 °/Sek. um Achse %3', [part(), num('V'), { type: 'field_dropdown', name: 'AXIS', options: AXIS_Y }], 'Läuft weiter, bis 0 gesetzt wird — Räder, Lüfter, Propeller.'),
+  stmt('bc_part_move', 'parts', 'verschiebe Teil %1 in %2 Sek. auf x %3 y %4 z %5', [part(), num('S'), num('X'), num('Y'), num('Z')], 'Abstand zur Ruhelage in Metern (0/0/0 = wie im Modell) — Schubladen, Fensterscheiben.'),
+  stmt('bc_part_reset', 'parts', 'setze Teil %1 in %2 Sek. zurück', [part(), num('S')], 'Zurück in die Ruhelage, stoppt auch die Dauerdrehung.'),
+  stmt('bc_part_show', 'parts', '%1 Teil %2', [{ type: 'field_dropdown', name: 'SHOW', options: [['zeige', 'true'], ['verstecke', 'false']] }, part()]),
+  stmt('bc_part_color', 'parts', 'färbe Teil %1 in %2', [part(), colour('C', '#2060c0')]),
+  stmt('bc_part_glow', 'parts', 'Teil %1 leuchtet in %2 mit Stärke %3', [part(), colour('C', '#fff2c0'), num('V')], 'Stärke 0 = aus. Für Scheinwerfer, Rücklichter, Anzeigen.'),
+  reporter('bc_part_angle', 'parts', 'Winkel von Teil %1 um Achse %2', [part(), { type: 'field_dropdown', name: 'AXIS', options: AXIS_Y }]),
+
+  // Klang
+  stmt('bc_sound', 'sound', 'spiele Klang %1 mit Lautstärke %2 %', [{ type: 'field_dropdown', name: 'ID', options: SOUND_OPTIONS }, num('V')], 'Kurzer Klang am Ort des Objekts — weiter weg wird er leiser.'),
+  stmt('bc_sound_file', 'sound', 'spiele Audiodatei %1 mit Lautstärke %2 %', [{ type: 'field_input', name: 'FILE', text: 'klang.mp3' }, num('V')], 'Datei aus public/assets/audio (mp3, ogg, wav).'),
+  stmt('bc_loop_start', 'sound', 'starte Dauerklang %1 mit Lautstärke %2 %', [{ type: 'field_dropdown', name: 'ID', options: LOOP_OPTIONS }, num('V')], 'Läuft, bis er gestoppt wird.'),
+  stmt('bc_loop_stop', 'sound', 'stoppe Dauerklang %1', [{ type: 'field_dropdown', name: 'ID', options: LOOP_OPTIONS }]),
+  stmt('bc_loop_pitch', 'sound', 'setze Tonhöhe von Dauerklang %1 auf %2 %', [{ type: 'field_dropdown', name: 'ID', options: LOOP_OPTIONS }, num('V')], '100 % = normal. Beim Motor = Drehzahl.'),
+  stmt('bc_loop_volume', 'sound', 'setze Lautstärke von Dauerklang %1 auf %2 %', [{ type: 'field_dropdown', name: 'ID', options: LOOP_OPTIONS }, num('V')]),
+  reporter('bc_loop_is_on', 'sound', 'Dauerklang %1 läuft?', [{ type: 'field_dropdown', name: 'ID', options: LOOP_OPTIONS }], 'Boolean'),
+  reporter('bc_dt', 'sensing', 'Sekunden seit letztem Frame', [], 'Number', 'Damit Bewegung in „Jeden Frame“ bei jeder Bildrate gleich schnell ist: Tempo × diese Zahl.'),
 
   // Bewegung
   stmt('bc_move_by', 'motion', 'ändere Position um x %1 y %2 z %3', [num('X'), num('Y'), num('Z')]),
@@ -208,6 +278,7 @@ export const EVENT_BLOCKS: Record<string, { event: string; arg?: (b: Blockly.Blo
   bc_when_near: { event: 'near', arg: (b) => String(Number(b.getFieldValue('DIST')) || 0) },
   bc_when_key: { event: 'key', arg: (b) => JSON.stringify(b.getFieldValue('KEY')) },
   bc_when_message: { event: 'message', arg: (b) => JSON.stringify(b.getFieldValue('MSG')) },
+  bc_when_part_interact: { event: 'partInteract', arg: (b) => `${JSON.stringify(b.getFieldValue('TEXT') || 'Benutzen')}, ${JSON.stringify(b.getFieldValue('PART') || '')}` },
   sc_when_clicked: { event: 'click' },
   sc_when_hover: { event: 'hover' },
   sc_when_unhover: { event: 'unhover' },
@@ -224,6 +295,23 @@ export function installBlocks(): void {
   registerFieldColour();
   colourPicker.installBlock({ javascript: javascriptGenerator });
   Blockly.common.defineBlocksWithJsonArray(BLOCKS);
+  // Platzhalter-Auswahl der Teil-Blöcke durch die Liste des aktuellen Modells ersetzen
+  for (const b of BLOCKS) {
+    const type = b.type as string;
+    if (!(b.args0 as Json[] | undefined)?.some((a) => a.name === 'PART')) continue;
+    PART_BLOCKS.push(type);
+    const def = Blockly.Blocks[type] as { init: (this: Blockly.Block) => void };
+    const init = def.init;
+    def.init = function (this: Blockly.Block) {
+      init.call(this);
+      const old = this.getField('PART');
+      const input = old?.getParentInput();
+      if (!old || !input) return;
+      const at = input.fieldRow.indexOf(old);
+      input.removeField('PART');
+      input.insertFieldAt(at, new PartField() as unknown as Blockly.Field<string | undefined>, 'PART');
+    };
+  }
 
   const g = javascriptGenerator;
   // Wie in Scratch: jede Schleife gibt pro Durchlauf einen Frame ab → keine Endlosschleifen-Hänger
@@ -248,6 +336,26 @@ export function installBlocks(): void {
   }
   const origScrub = g.scrub_.bind(g);
   g.scrub_ = (block, code, thisOnly) => (EVENT_BLOCKS[block.type] ? code : origScrub(block, code, thisOnly));
+
+  const pa = (b: Blockly.Block) => `${f(b, 'PART')}, ${f(b, 'AXIS')}`;
+  def('bc_part_turn_to', (b) => `await api.partTurnTo(${pa(b)}, ${v(b, 'DEG')}, ${v(b, 'S', '1')});\n`);
+  def('bc_part_turn_by', (b) => `await api.partTurnBy(${pa(b)}, ${v(b, 'DEG')}, ${v(b, 'S', '1')});\n`);
+  def('bc_part_set_angle', (b) => `api.partSetAngle(${pa(b)}, ${v(b, 'DEG')});\n`);
+  def('bc_part_spin', (b) => `api.partSpin(${pa(b)}, ${v(b, 'V')});\n`);
+  def('bc_part_move', (b) => `await api.partMoveTo(${f(b, 'PART')}, ${xyz(b)}, ${v(b, 'S', '1')});\n`);
+  def('bc_part_reset', (b) => `await api.partReset(${f(b, 'PART')}, ${v(b, 'S', '1')});\n`);
+  def('bc_part_show', (b) => `api.partShow(${f(b, 'PART')}, ${b.getFieldValue('SHOW') === 'true'});\n`);
+  def('bc_part_color', (b) => `api.partColor(${f(b, 'PART')}, ${f(b, 'C')});\n`);
+  def('bc_part_glow', (b) => `api.partGlow(${f(b, 'PART')}, ${f(b, 'C')}, ${v(b, 'V', '1')});\n`);
+  def('bc_part_angle', (b) => [`api.partAngle(${pa(b)})`, Order.FUNCTION_CALL]);
+  def('bc_sound', (b) => `api.sound(${f(b, 'ID')}, ${v(b, 'V', '100')});\n`);
+  def('bc_sound_file', (b) => `api.soundFile(${f(b, 'FILE')}, ${v(b, 'V', '100')});\n`);
+  def('bc_loop_start', (b) => `api.loopStart(${f(b, 'ID')}, ${v(b, 'V', '100')});\n`);
+  def('bc_loop_stop', (b) => `api.loopStop(${f(b, 'ID')});\n`);
+  def('bc_loop_pitch', (b) => `api.loopPitch(${f(b, 'ID')}, ${v(b, 'V', '100')});\n`);
+  def('bc_loop_volume', (b) => `api.loopVolume(${f(b, 'ID')}, ${v(b, 'V', '100')});\n`);
+  def('bc_loop_is_on', (b) => [`api.loopIsOn(${f(b, 'ID')})`, Order.FUNCTION_CALL]);
+  def('bc_dt', () => ['api.dt()', Order.FUNCTION_CALL]);
 
   def('bc_broadcast', (b) => `api.broadcast(${f(b, 'MSG')});\n`);
   def('bc_move_by', (b) => `api.moveBy(${xyz(b)});\n`);
@@ -375,6 +483,7 @@ export const TOOLBOX = {
         block('bc_when_start'),
         block('bc_when_interact'),
         block('bc_when_hit'),
+        block('bc_when_part_interact'),
         block('bc_when_enter'),
         block('bc_when_leave'),
         block('bc_when_near'),
@@ -382,6 +491,38 @@ export const TOOLBOX = {
         block('bc_when_tick'),
         block('bc_when_message'),
         block('bc_broadcast'),
+      ],
+    },
+    {
+      kind: 'category',
+      name: 'Modell-Teile',
+      colour: CATEGORY_COLOURS.parts,
+      contents: [
+        block('bc_when_part_interact'),
+        block('bc_part_turn_to', { S: n(0.8), DEG: n(60) }),
+        block('bc_part_turn_by', { S: n(1), DEG: n(90) }),
+        block('bc_part_set_angle', { DEG: n(0) }),
+        block('bc_part_spin', { V: n(360) }),
+        block('bc_part_move', { S: n(1), X: n(0), Y: n(0), Z: n(0) }),
+        block('bc_part_reset', { S: n(0.5) }),
+        block('bc_part_show'),
+        block('bc_part_color'),
+        block('bc_part_glow', { V: n(5) }),
+        block('bc_part_angle'),
+      ],
+    },
+    {
+      kind: 'category',
+      name: 'Klang',
+      colour: CATEGORY_COLOURS.sound,
+      contents: [
+        block('bc_sound', { V: n(100) }),
+        block('bc_loop_start', { V: n(100) }),
+        block('bc_loop_stop'),
+        block('bc_loop_pitch', { V: n(150) }),
+        block('bc_loop_volume', { V: n(50) }),
+        block('bc_loop_is_on'),
+        block('bc_sound_file', { V: n(100) }),
       ],
     },
     {
@@ -452,6 +593,7 @@ export const TOOLBOX = {
         block('bc_player_pos'),
         block('bc_key_down'),
         block('bc_time'),
+        block('bc_dt'),
         block('bc_obj_pos'),
       ],
     },

@@ -426,6 +426,7 @@ const uiActive = () => terminalActive() || activeScreen !== null;
 scripts.start();
 for (const gs of gameScreens) gs.rt.start();
 let interactNode: MapNode | null = null;
+let interactHit: THREE.Object3D | null = null;
 window.addEventListener('keydown', (e) => {
   if (e.repeat || !player.isLocked) return;
   if (thirdPerson && e.code === 'KeyV' && !uiActive()) {
@@ -710,7 +711,7 @@ input.onPress((action) => {
         player.setFocus(terminal.focusTarget(camera.aspect, CAMERA_DROP, CAMERA_FORWARD));
         terminal.enter();
       } else if (interactNode) {
-        scripts.interact(interactNode);
+        scripts.interact(interactNode, interactHit);
       }
       break;
     case 'flashlight':
@@ -922,9 +923,10 @@ renderer.setAnimationLoop(() => {
       promptText = 'Terminal benutzen';
     } else if (hit && hit.distance <= INTERACT_RANGE) {
       const node = scripts.findNode(hit.object);
-      const text = scripts.interactPrompt(node);
+      const text = scripts.interactPrompt(node, hit.object);
       if (text) {
         interactNode = node;
+        interactHit = hit.object;
         promptText = text;
       }
     }

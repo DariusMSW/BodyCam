@@ -2,6 +2,7 @@ import { normalizeMap, type MapData } from '../world/mapFormat.ts';
 import { NO_BLOBS, UrlBlobs, type BlobSource } from '../world/blobStore.ts';
 import startMap from './start.json';
 import trainingMap from './training.json';
+import oldtimerMap from './oldtimer.json';
 
 // Mitgelieferte Maps, zwei Quellen:
 //  - kleine Maps ohne Binär-Daten: JSON in src/maps/<id>.json, hier eintragen (im Editor „Als JSON exportieren“)
@@ -10,6 +11,8 @@ import trainingMap from './training.json';
 export const MAPS: Record<string, MapData> = {
   start: normalizeMap(startMap),
   training: normalizeMap(trainingMap),
+  // Oldtimer mit Block-Script (erzeugt von scripts/make-oldtimer-map.ts)
+  oldtimer: normalizeMap(oldtimerMap),
 };
 
 export interface BundledMap {

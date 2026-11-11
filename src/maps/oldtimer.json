@@ -1,0 +1,3241 @@
+{
+  "format": "bodycam-map",
+  "version": 2,
+  "name": "Oldtimer",
+  "world": {
+    "background": "#8fa3b8",
+    "sky": true,
+    "hemiIntensity": 0.7,
+    "sunColor": "#fff1d6",
+    "sunIntensity": 1.6,
+    "sunAzimuth": 130,
+    "sunElevation": 42,
+    "sunShadow": true,
+    "sunShadowDistance": 80,
+    "viewDistance": 300,
+    "groundFog": false,
+    "groundPlane": true
+  },
+  "objects": [
+    {
+      "id": "ot_boden",
+      "name": "Platz",
+      "type": "box",
+      "pos": [
+        0,
+        -0.05,
+        0
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        80,
+        0.1,
+        80
+      ],
+      "props": {
+        "material": "beton_dunkel",
+        "color": "#ffffff",
+        "roughness": 0.8,
+        "metalness": 0,
+        "emissive": "#000000",
+        "emissiveIntensity": 0,
+        "uvScale": 2,
+        "castShadow": false,
+        "collision": true
+      }
+    },
+    {
+      "id": "ot_auto",
+      "name": "Oldtimer",
+      "type": "model",
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "props": {
+        "model": "/assets/models/oldtimer.glb",
+        "collision": "bounds",
+        "simulate": false,
+        "mass": 1400,
+        "buoyancy": 1,
+        "castShadow": true
+      },
+      "script": {
+        "blocks": {
+          "blocks": {
+            "languageVersion": 0,
+            "blocks": [
+              {
+                "type": "bc_when_start",
+                "id": "ZhtWtXjn#F%HTl^;pAz%",
+                "x": 20,
+                "y": 20,
+                "next": {
+                  "block": {
+                    "type": "variables_set",
+                    "id": "/D:TYa^aS#DU2_}SyZ4,",
+                    "fields": {
+                      "VAR": {
+                        "id": "v_motor"
+                      }
+                    },
+                    "inputs": {
+                      "VALUE": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "*Pu6=Ei.z-H1{Sj3wgT]",
+                          "fields": {
+                            "NUM": 0
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "variables_set",
+                        "id": "#16zKbp{Sz^rbB1%!ix.",
+                        "fields": {
+                          "VAR": {
+                            "id": "v_licht"
+                          }
+                        },
+                        "inputs": {
+                          "VALUE": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "yitG!EpyL_vvQB{[p_T0",
+                              "fields": {
+                                "NUM": 0
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "variables_set",
+                            "id": "$;uD,bpn_g{i[Ebap3;7",
+                            "fields": {
+                              "VAR": {
+                                "id": "v_tuerL"
+                              }
+                            },
+                            "inputs": {
+                              "VALUE": {
+                                "shadow": {
+                                  "type": "math_number",
+                                  "id": "xLt6uyM/A+WD/0t=O?p@",
+                                  "fields": {
+                                    "NUM": 0
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "variables_set",
+                                "id": ".p=z6Ik55D!GslGL5Cf-",
+                                "fields": {
+                                  "VAR": {
+                                    "id": "v_tuerR"
+                                  }
+                                },
+                                "inputs": {
+                                  "VALUE": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": ".x.7i02+uP,oU@q5CRF3",
+                                      "fields": {
+                                        "NUM": 0
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "variables_set",
+                                    "id": "fIG,ij4/.I;`LEJ]g{uB",
+                                    "fields": {
+                                      "VAR": {
+                                        "id": "v_fenster"
+                                      }
+                                    },
+                                    "inputs": {
+                                      "VALUE": {
+                                        "shadow": {
+                                          "type": "math_number",
+                                          "id": "x}jh|:+`Ly}xdRN44.Bo",
+                                          "fields": {
+                                            "NUM": 0
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "variables_set",
+                                        "id": "LB@MKJ_?JeI7OD7bqReO",
+                                        "fields": {
+                                          "VAR": {
+                                            "id": "v_haube"
+                                          }
+                                        },
+                                        "inputs": {
+                                          "VALUE": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "u~0TF4G8erKc]Z_7SE1l",
+                                              "fields": {
+                                                "NUM": 0
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "variables_set",
+                                            "id": "o/^iOY4RFYR,9(l[etwA",
+                                            "fields": {
+                                              "VAR": {
+                                                "id": "v_koffer"
+                                              }
+                                            },
+                                            "inputs": {
+                                              "VALUE": {
+                                                "shadow": {
+                                                  "type": "math_number",
+                                                  "id": "%hzv/|a%96):jF}Kb,.7",
+                                                  "fields": {
+                                                    "NUM": 0
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "variables_set",
+                                                "id": "O?}@i=?qYQp/({e_!cw+",
+                                                "fields": {
+                                                  "VAR": {
+                                                    "id": "v_fach"
+                                                  }
+                                                },
+                                                "inputs": {
+                                                  "VALUE": {
+                                                    "shadow": {
+                                                      "type": "math_number",
+                                                      "id": "R,gS`;XdRmk?$l$`Rl`j",
+                                                      "fields": {
+                                                        "NUM": 0
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "variables_set",
+                                                    "id": "xQ`y}F9%dRH2jv)B8:oO",
+                                                    "fields": {
+                                                      "VAR": {
+                                                        "id": "v_tempo"
+                                                      }
+                                                    },
+                                                    "inputs": {
+                                                      "VALUE": {
+                                                        "shadow": {
+                                                          "type": "math_number",
+                                                          "id": "+fPsh,ubt{`?OTgN)z{?",
+                                                          "fields": {
+                                                            "NUM": 0
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "variables_set",
+                                                        "id": "f4(.xl1kIg[ySU@pFL:@",
+                                                        "fields": {
+                                                          "VAR": {
+                                                            "id": "v_ziel"
+                                                          }
+                                                        },
+                                                        "inputs": {
+                                                          "VALUE": {
+                                                            "shadow": {
+                                                              "type": "math_number",
+                                                              "id": "4e$6]HKC51EdozG%*5^0",
+                                                              "fields": {
+                                                                "NUM": 0
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "next": {
+                                                          "block": {
+                                                            "type": "variables_set",
+                                                            "id": "M_C;k=/DlkSl9)_akX]B",
+                                                            "fields": {
+                                                              "VAR": {
+                                                                "id": "v_lenk"
+                                                              }
+                                                            },
+                                                            "inputs": {
+                                                              "VALUE": {
+                                                                "shadow": {
+                                                                  "type": "math_number",
+                                                                  "id": "G9a@K_8TF[-oKyEOZy.?",
+                                                                  "fields": {
+                                                                    "NUM": 0
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "next": {
+                                                              "block": {
+                                                                "type": "variables_set",
+                                                                "id": "UPMPHc-jO;AJ?!ZmH[*_",
+                                                                "fields": {
+                                                                  "VAR": {
+                                                                    "id": "v_lenkZiel"
+                                                                  }
+                                                                },
+                                                                "inputs": {
+                                                                  "VALUE": {
+                                                                    "shadow": {
+                                                                      "type": "math_number",
+                                                                      "id": "RW=6y$}_*hax#~0P6X!v",
+                                                                      "fields": {
+                                                                        "NUM": 0
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "next": {
+                                                                  "block": {
+                                                                    "type": "bc_show_text",
+                                                                    "id": "45xWcP=WM5(s4Chg-![,",
+                                                                    "inputs": {
+                                                                      "TEXT": {
+                                                                        "shadow": {
+                                                                          "type": "text",
+                                                                          "id": "H8^Q=`9Rpch-`J,hC1h+",
+                                                                          "fields": {
+                                                                            "TEXT": "Oldtimer — E: Türen, Fenster, Haube, Kofferraum · M: Motor · L: Licht · H: Hupe · Pfeiltasten: fahren"
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "S": {
+                                                                        "shadow": {
+                                                                          "type": "math_number",
+                                                                          "id": "T1c~c6yHHNM)l;jC%ssy",
+                                                                          "fields": {
+                                                                            "NUM": 8
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "bc_when_part_interact",
+                "id": "ae}.;P7gCl):0J3wD?-r",
+                "x": 920,
+                "y": 20,
+                "fields": {
+                  "PART": "Door_L",
+                  "TEXT": "Fahrertür"
+                },
+                "next": {
+                  "block": {
+                    "type": "controls_if",
+                    "id": "mmKTla-B/I2u304BTrF{",
+                    "extraState": {
+                      "hasElse": true
+                    },
+                    "inputs": {
+                      "IF0": {
+                        "block": {
+                          "type": "logic_compare",
+                          "id": "=Y7MKNU]ZwIuOuI=qL3X",
+                          "fields": {
+                            "OP": "EQ"
+                          },
+                          "inputs": {
+                            "A": {
+                              "block": {
+                                "type": "variables_get",
+                                "id": "[x+M_eP/rAPb=mlk!]q?",
+                                "fields": {
+                                  "VAR": {
+                                    "id": "v_tuerL"
+                                  }
+                                }
+                              }
+                            },
+                            "B": {
+                              "block": {
+                                "type": "math_number",
+                                "id": "f^BXzn6w:;VpbXf_HTWo",
+                                "fields": {
+                                  "NUM": 0
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "DO0": {
+                        "block": {
+                          "type": "variables_set",
+                          "id": "T7K:q;,bUew|ghBP^q?1",
+                          "fields": {
+                            "VAR": {
+                              "id": "v_tuerL"
+                            }
+                          },
+                          "inputs": {
+                            "VALUE": {
+                              "shadow": {
+                                "type": "math_number",
+                                "id": "cEKw{e8zlZZ~A|zIt2~a",
+                                "fields": {
+                                  "NUM": 1
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "bc_sound",
+                              "id": "zyXN*t.^gViF`Ky!l?x[",
+                              "fields": {
+                                "ID": "door_open"
+                              },
+                              "inputs": {
+                                "V": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "LLM$g:ydVE5-mW])oK0D",
+                                    "fields": {
+                                      "NUM": 100
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "bc_part_turn_to",
+                                  "id": "z:TCpI#G*-:~_%ozG-6$",
+                                  "fields": {
+                                    "PART": "Door_L",
+                                    "AXIS": "y"
+                                  },
+                                  "inputs": {
+                                    "S": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "Fco9yd=qu2YglT$I`tXN",
+                                        "fields": {
+                                          "NUM": 0.9
+                                        }
+                                      }
+                                    },
+                                    "DEG": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "vd+xmS!xT}.HQq4=*BX[",
+                                        "fields": {
+                                          "NUM": -65
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "variables_set",
+                          "id": ")6kjANWnaqg}$Qk)]GzW",
+                          "fields": {
+                            "VAR": {
+                              "id": "v_tuerL"
+                            }
+                          },
+                          "inputs": {
+                            "VALUE": {
+                              "shadow": {
+                                "type": "math_number",
+                                "id": "h}O-)RmTGaFI)1`FV@T~",
+                                "fields": {
+                                  "NUM": 0
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "bc_part_turn_to",
+                              "id": ",8/z]$[=_Y:#8j$4L]=(",
+                              "fields": {
+                                "PART": "Door_L",
+                                "AXIS": "y"
+                              },
+                              "inputs": {
+                                "S": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "1k)]iBQFnUR.,3]9;Jr#",
+                                    "fields": {
+                                      "NUM": 0.675
+                                    }
+                                  }
+                                },
+                                "DEG": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "!0M3/d`Y.8K0`]-;Fb,_",
+                                    "fields": {
+                                      "NUM": 0
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "bc_sound",
+                                  "id": "K1.!J!]LicBrUw]5rg3d",
+                                  "fields": {
+                                    "ID": "door_close"
+                                  },
+                                  "inputs": {
+                                    "V": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "?;;ajx{iOwF^Z+=3!(RT",
+                                        "fields": {
+                                          "NUM": 100
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "bc_when_part_interact",
+                "id": "AoAH~RmiTI{R;FX4os~s",
+                "x": 920,
+                "y": 580,
+                "fields": {
+                  "PART": "Door_R",
+                  "TEXT": "Beifahrertür"
+                },
+                "next": {
+                  "block": {
+                    "type": "controls_if",
+                    "id": "w.ooCIw=,9M2450ls]0#",
+                    "extraState": {
+                      "hasElse": true
+                    },
+                    "inputs": {
+                      "IF0": {
+                        "block": {
+                          "type": "logic_compare",
+                          "id": "*HWh6{*xLjR`.:nW~._C",
+                          "fields": {
+                            "OP": "EQ"
+                          },
+                          "inputs": {
+                            "A": {
+                              "block": {
+                                "type": "variables_get",
+                                "id": "adshyR!,*Ake/[XgXfie",
+                                "fields": {
+                                  "VAR": {
+                                    "id": "v_tuerR"
+                                  }
+                                }
+                              }
+                            },
+                            "B": {
+                              "block": {
+                                "type": "math_number",
+                                "id": "S`19|PQ[XyBUq4?k}?xf",
+                                "fields": {
+                                  "NUM": 0
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "DO0": {
+                        "block": {
+                          "type": "variables_set",
+                          "id": "AWe-|Q+X4,-Va6@T+n3s",
+                          "fields": {
+                            "VAR": {
+                              "id": "v_tuerR"
+                            }
+                          },
+                          "inputs": {
+                            "VALUE": {
+                              "shadow": {
+                                "type": "math_number",
+                                "id": "kGNT8eb+)mR4Cnq/_F7u",
+                                "fields": {
+                                  "NUM": 1
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "bc_sound",
+                              "id": ":_Vn}OsjGvg=kA`_l[c{",
+                              "fields": {
+                                "ID": "door_open"
+                              },
+                              "inputs": {
+                                "V": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "Y+dq$NZEO{8)h%)oqyqJ",
+                                    "fields": {
+                                      "NUM": 100
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "bc_part_turn_to",
+                                  "id": "mCJ/1/~yFW%!_0!3k3`i",
+                                  "fields": {
+                                    "PART": "Door_R",
+                                    "AXIS": "y"
+                                  },
+                                  "inputs": {
+                                    "S": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "?TC)m:8,Z-|oiOy_};Cq",
+                                        "fields": {
+                                          "NUM": 0.9
+                                        }
+                                      }
+                                    },
+                                    "DEG": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "g9T@oI[8~0D@]^?KPYbR",
+                                        "fields": {
+                                          "NUM": 65
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "variables_set",
+                          "id": "H#+Hmb5u`j,2Gg`#z3i/",
+                          "fields": {
+                            "VAR": {
+                              "id": "v_tuerR"
+                            }
+                          },
+                          "inputs": {
+                            "VALUE": {
+                              "shadow": {
+                                "type": "math_number",
+                                "id": "W#a^}Y@?{43gHaO5o[Sm",
+                                "fields": {
+                                  "NUM": 0
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "bc_part_turn_to",
+                              "id": "ASDO~cWUZA+2Q/tILRJ`",
+                              "fields": {
+                                "PART": "Door_R",
+                                "AXIS": "y"
+                              },
+                              "inputs": {
+                                "S": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "4fq[]clB%8kU$4L:|S0O",
+                                    "fields": {
+                                      "NUM": 0.675
+                                    }
+                                  }
+                                },
+                                "DEG": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "(;zFr7[dgzJ:TRO9S89c",
+                                    "fields": {
+                                      "NUM": 0
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "bc_sound",
+                                  "id": "#L0-=5IGQYR[Am}Y$VYh",
+                                  "fields": {
+                                    "ID": "door_close"
+                                  },
+                                  "inputs": {
+                                    "V": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "L[ff$JD+1hj,S*`Qp-)|",
+                                        "fields": {
+                                          "NUM": 100
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "bc_when_part_interact",
+                "id": "(-I#hQKu_!avynrgcrFi",
+                "x": 20,
+                "y": 676,
+                "fields": {
+                  "PART": "Hood",
+                  "TEXT": "Motorhaube"
+                },
+                "next": {
+                  "block": {
+                    "type": "controls_if",
+                    "id": "U?m)@sIZ@l[:;dq1_54!",
+                    "extraState": {
+                      "hasElse": true
+                    },
+                    "inputs": {
+                      "IF0": {
+                        "block": {
+                          "type": "logic_compare",
+                          "id": "#AW2(t!/v]dKkv.3HZ$l",
+                          "fields": {
+                            "OP": "EQ"
+                          },
+                          "inputs": {
+                            "A": {
+                              "block": {
+                                "type": "variables_get",
+                                "id": "09~}dp4B.@^w7OO5MXK$",
+                                "fields": {
+                                  "VAR": {
+                                    "id": "v_haube"
+                                  }
+                                }
+                              }
+                            },
+                            "B": {
+                              "block": {
+                                "type": "math_number",
+                                "id": "yEg[qcAW:C5Sde;#%Y+~",
+                                "fields": {
+                                  "NUM": 0
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "DO0": {
+                        "block": {
+                          "type": "variables_set",
+                          "id": "d3f0d57.gw/lRP6zV%qs",
+                          "fields": {
+                            "VAR": {
+                              "id": "v_haube"
+                            }
+                          },
+                          "inputs": {
+                            "VALUE": {
+                              "shadow": {
+                                "type": "math_number",
+                                "id": ":A)KBK1A)Z[lYPJPVvr1",
+                                "fields": {
+                                  "NUM": 1
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "bc_sound",
+                              "id": "R5,3N3m1f)D1UE?!x9Ly",
+                              "fields": {
+                                "ID": "squeak"
+                              },
+                              "inputs": {
+                                "V": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "hoYl*m^r+240cta2DwGe",
+                                    "fields": {
+                                      "NUM": 100
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "bc_part_turn_to",
+                                  "id": "yAlb|hF#tLL1fk8T$qM;",
+                                  "fields": {
+                                    "PART": "Hood",
+                                    "AXIS": "x"
+                                  },
+                                  "inputs": {
+                                    "S": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": ".ebl,s{?J@Y?=X/y3!V2",
+                                        "fields": {
+                                          "NUM": 1.2
+                                        }
+                                      }
+                                    },
+                                    "DEG": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "r3iDm5B{O?--f:v^x:db",
+                                        "fields": {
+                                          "NUM": -50
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "variables_set",
+                          "id": "%1~M|)(W0Xa;~`!v0wMB",
+                          "fields": {
+                            "VAR": {
+                              "id": "v_haube"
+                            }
+                          },
+                          "inputs": {
+                            "VALUE": {
+                              "shadow": {
+                                "type": "math_number",
+                                "id": "1i,CU]VH=rF=-b}!7z@7",
+                                "fields": {
+                                  "NUM": 0
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "bc_part_turn_to",
+                              "id": "8OQVT~B6Wv|dp%MK=]Ol",
+                              "fields": {
+                                "PART": "Hood",
+                                "AXIS": "x"
+                              },
+                              "inputs": {
+                                "S": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "vv%DR3163A}O79DT1qVC",
+                                    "fields": {
+                                      "NUM": 0.8999999999999999
+                                    }
+                                  }
+                                },
+                                "DEG": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "6pp!$HQ|/=~bCO+O6som",
+                                    "fields": {
+                                      "NUM": 0
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "bc_sound",
+                                  "id": "e#/Md*h%7Pr.H2H`Ge)^",
+                                  "fields": {
+                                    "ID": "thud"
+                                  },
+                                  "inputs": {
+                                    "V": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "r?t@,oEbLmP#;JZBeTq@",
+                                        "fields": {
+                                          "NUM": 100
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "bc_when_part_interact",
+                "id": "+D/sW)3@lG*EP!WQ=PmW",
+                "x": 920,
+                "y": 1140,
+                "fields": {
+                  "PART": "Trunk_Lid",
+                  "TEXT": "Kofferraum"
+                },
+                "next": {
+                  "block": {
+                    "type": "controls_if",
+                    "id": "~{.BYrXr;iJz/fcgRFzT",
+                    "extraState": {
+                      "hasElse": true
+                    },
+                    "inputs": {
+                      "IF0": {
+                        "block": {
+                          "type": "logic_compare",
+                          "id": "7Iwjm5:v0rh*|fVg|vp9",
+                          "fields": {
+                            "OP": "EQ"
+                          },
+                          "inputs": {
+                            "A": {
+                              "block": {
+                                "type": "variables_get",
+                                "id": "z?zH;iXL?mdrw)POenj-",
+                                "fields": {
+                                  "VAR": {
+                                    "id": "v_koffer"
+                                  }
+                                }
+                              }
+                            },
+                            "B": {
+                              "block": {
+                                "type": "math_number",
+                                "id": "@3W}3P$SVM6Jxr1_{giI",
+                                "fields": {
+                                  "NUM": 0
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "DO0": {
+                        "block": {
+                          "type": "variables_set",
+                          "id": "z1OH/WHl#mL3H1Q8.Q0x",
+                          "fields": {
+                            "VAR": {
+                              "id": "v_koffer"
+                            }
+                          },
+                          "inputs": {
+                            "VALUE": {
+                              "shadow": {
+                                "type": "math_number",
+                                "id": "}e]G[7l-54[Q6o4d$,XK",
+                                "fields": {
+                                  "NUM": 1
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "bc_sound",
+                              "id": "1lb0^iVQ)vhEy/X.uXB}",
+                              "fields": {
+                                "ID": "squeak"
+                              },
+                              "inputs": {
+                                "V": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "KNm/{A0%D%fayr*4(=Z7",
+                                    "fields": {
+                                      "NUM": 100
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "bc_part_turn_to",
+                                  "id": ".}#j~9TD-j@#_WhZPrBU",
+                                  "fields": {
+                                    "PART": "Trunk_Lid",
+                                    "AXIS": "x"
+                                  },
+                                  "inputs": {
+                                    "S": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": ",_o!?X4{8Lve^EqKChWh",
+                                        "fields": {
+                                          "NUM": 1.1
+                                        }
+                                      }
+                                    },
+                                    "DEG": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "LLj8b|L7xiQ+Ob*fO~DV",
+                                        "fields": {
+                                          "NUM": 65
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "variables_set",
+                          "id": "GCQN_KP:%E;gy~quZ1L*",
+                          "fields": {
+                            "VAR": {
+                              "id": "v_koffer"
+                            }
+                          },
+                          "inputs": {
+                            "VALUE": {
+                              "shadow": {
+                                "type": "math_number",
+                                "id": "y8:XYqr?/f6vmn?/WKJC",
+                                "fields": {
+                                  "NUM": 0
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "bc_part_turn_to",
+                              "id": "PX5``,}+PiYIF5{r5rXC",
+                              "fields": {
+                                "PART": "Trunk_Lid",
+                                "AXIS": "x"
+                              },
+                              "inputs": {
+                                "S": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "}]oH??DY{,C@}_.g`#WC",
+                                    "fields": {
+                                      "NUM": 0.8250000000000001
+                                    }
+                                  }
+                                },
+                                "DEG": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "uOgjOA@E_T(vwk,~H8V5",
+                                    "fields": {
+                                      "NUM": 0
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "bc_sound",
+                                  "id": "7rqSneve=ltHP~=~Dmvc",
+                                  "fields": {
+                                    "ID": "thud"
+                                  },
+                                  "inputs": {
+                                    "V": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "!pQhH.ngvlvEF~?d9q|H",
+                                        "fields": {
+                                          "NUM": 100
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "bc_when_part_interact",
+                "id": ")uDB45E#L}63@mSnDncH",
+                "x": 20,
+                "y": 1236,
+                "fields": {
+                  "PART": "Glovebox_Door",
+                  "TEXT": "Handschuhfach"
+                },
+                "next": {
+                  "block": {
+                    "type": "controls_if",
+                    "id": "])i4rjj2fPBC@mbJh$4t",
+                    "extraState": {
+                      "hasElse": true
+                    },
+                    "inputs": {
+                      "IF0": {
+                        "block": {
+                          "type": "logic_compare",
+                          "id": "[bH1Pt2Z;rOXS61Fv?|c",
+                          "fields": {
+                            "OP": "EQ"
+                          },
+                          "inputs": {
+                            "A": {
+                              "block": {
+                                "type": "variables_get",
+                                "id": "aXf9HaK0Vd;+[Sda9wSX",
+                                "fields": {
+                                  "VAR": {
+                                    "id": "v_fach"
+                                  }
+                                }
+                              }
+                            },
+                            "B": {
+                              "block": {
+                                "type": "math_number",
+                                "id": "$c,^xNet%WL:fi4j{mug",
+                                "fields": {
+                                  "NUM": 0
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "DO0": {
+                        "block": {
+                          "type": "variables_set",
+                          "id": ";~qg8fjgej,D0aQ3a[Ut",
+                          "fields": {
+                            "VAR": {
+                              "id": "v_fach"
+                            }
+                          },
+                          "inputs": {
+                            "VALUE": {
+                              "shadow": {
+                                "type": "math_number",
+                                "id": "_y.?1ErCc8Z*eADVR1%*",
+                                "fields": {
+                                  "NUM": 1
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "bc_sound",
+                              "id": "+^:q:5`RzEOw7o~QpI6Q",
+                              "fields": {
+                                "ID": "click"
+                              },
+                              "inputs": {
+                                "V": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "7(crO0A`{lM]*Q#bSu+;",
+                                    "fields": {
+                                      "NUM": 100
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "bc_part_turn_to",
+                                  "id": "x7K`TW[g)-oMCBr6Z0%H",
+                                  "fields": {
+                                    "PART": "Glovebox_Door",
+                                    "AXIS": "x"
+                                  },
+                                  "inputs": {
+                                    "S": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "+j^j:2(~L45oES0Y3/{)",
+                                        "fields": {
+                                          "NUM": 0.4
+                                        }
+                                      }
+                                    },
+                                    "DEG": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "SO%/Q$s_5qdV|@ioYNw-",
+                                        "fields": {
+                                          "NUM": -70
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "variables_set",
+                          "id": "hlM0W._qgJ?oJ~HTXM6O",
+                          "fields": {
+                            "VAR": {
+                              "id": "v_fach"
+                            }
+                          },
+                          "inputs": {
+                            "VALUE": {
+                              "shadow": {
+                                "type": "math_number",
+                                "id": "[s?~)T7BG9*Pa`kPWr=d",
+                                "fields": {
+                                  "NUM": 0
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "bc_part_turn_to",
+                              "id": "kb,#c4_$]S%~w4mW~iCl",
+                              "fields": {
+                                "PART": "Glovebox_Door",
+                                "AXIS": "x"
+                              },
+                              "inputs": {
+                                "S": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "W(Us2xO;ji#QTgQ+(qWU",
+                                    "fields": {
+                                      "NUM": 0.30000000000000004
+                                    }
+                                  }
+                                },
+                                "DEG": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "j7JbGWc(g]L]-Rb_:{}5",
+                                    "fields": {
+                                      "NUM": 0
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "bc_sound",
+                                  "id": "Di;-2C.g^)Cup9-(ijHR",
+                                  "fields": {
+                                    "ID": "click"
+                                  },
+                                  "inputs": {
+                                    "V": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "_v.FH5xVv:h(D@.%.psE",
+                                        "fields": {
+                                          "NUM": 100
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "bc_when_part_interact",
+                "id": "n99kIO:=|e*DVKJ1ddH-",
+                "x": 920,
+                "y": 1700,
+                "fields": {
+                  "PART": "Door_L_Glass",
+                  "TEXT": "Fenster"
+                },
+                "next": {
+                  "block": {
+                    "type": "controls_if",
+                    "id": "Q6jIBx{i)8fP=Hs|+xQW",
+                    "extraState": {
+                      "hasElse": true
+                    },
+                    "inputs": {
+                      "IF0": {
+                        "block": {
+                          "type": "logic_compare",
+                          "id": "r^kNH!z]M:~Ln`SJk5io",
+                          "fields": {
+                            "OP": "EQ"
+                          },
+                          "inputs": {
+                            "A": {
+                              "block": {
+                                "type": "variables_get",
+                                "id": "TP=fOBN(~V^QT0!^,m3J",
+                                "fields": {
+                                  "VAR": {
+                                    "id": "v_fenster"
+                                  }
+                                }
+                              }
+                            },
+                            "B": {
+                              "block": {
+                                "type": "math_number",
+                                "id": ";b5ppp0?`4YxeSS[b?)^",
+                                "fields": {
+                                  "NUM": 0
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "DO0": {
+                        "block": {
+                          "type": "variables_set",
+                          "id": "+M9F4*ruX[BeLiLBUane",
+                          "fields": {
+                            "VAR": {
+                              "id": "v_fenster"
+                            }
+                          },
+                          "inputs": {
+                            "VALUE": {
+                              "shadow": {
+                                "type": "math_number",
+                                "id": "v%enm*[M/o1C%@4YDLNl",
+                                "fields": {
+                                  "NUM": 1
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "bc_part_move",
+                              "id": "O5-KK45y5oOnnXi:K$$F",
+                              "fields": {
+                                "PART": "Door_L_Glass"
+                              },
+                              "inputs": {
+                                "S": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "`RWC$0Wg6_0W^wXRUIy;",
+                                    "fields": {
+                                      "NUM": 1.4
+                                    }
+                                  }
+                                },
+                                "X": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "tG/$p$;KHr]`.]khV=oN",
+                                    "fields": {
+                                      "NUM": 0
+                                    }
+                                  }
+                                },
+                                "Y": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "YGbR,xUmyTPC5VHZtT6B",
+                                    "fields": {
+                                      "NUM": -0.42
+                                    }
+                                  }
+                                },
+                                "Z": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "mb$]9r!r[.f-_!;l%tS`",
+                                    "fields": {
+                                      "NUM": 0
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "variables_set",
+                          "id": "U0H{v?.x42m:#5ZSP^{7",
+                          "fields": {
+                            "VAR": {
+                              "id": "v_fenster"
+                            }
+                          },
+                          "inputs": {
+                            "VALUE": {
+                              "shadow": {
+                                "type": "math_number",
+                                "id": "57Dl}QoI,vV,$U{M/yss",
+                                "fields": {
+                                  "NUM": 0
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "bc_part_move",
+                              "id": "ArIUrh_Z~LHXHTwp!$iQ",
+                              "fields": {
+                                "PART": "Door_L_Glass"
+                              },
+                              "inputs": {
+                                "S": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "fzn%o7q77ZOmmcm^R`6y",
+                                    "fields": {
+                                      "NUM": 1.4
+                                    }
+                                  }
+                                },
+                                "X": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "XC@ev~}+A/{_VXN6$Z4g",
+                                    "fields": {
+                                      "NUM": 0
+                                    }
+                                  }
+                                },
+                                "Y": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "g!yQbOzUP0k4knM!21|n",
+                                    "fields": {
+                                      "NUM": 0
+                                    }
+                                  }
+                                },
+                                "Z": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "?Pv^wV7k`fFMlQ!v=K5_",
+                                    "fields": {
+                                      "NUM": 0
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "bc_when_part_interact",
+                "id": "*NXh8)KByaaxiBMA`r`!",
+                "x": 20,
+                "y": 1796,
+                "fields": {
+                  "PART": "Steering_Wheel",
+                  "TEXT": "Motor starten / abstellen"
+                },
+                "next": {
+                  "block": {
+                    "type": "bc_broadcast",
+                    "id": "BcNjlD0PQDs5j*|-]3)1",
+                    "fields": {
+                      "MSG": "zuendung"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "bc_when_key",
+                "id": "_8_Jbcz$qlSf%mcZ;4{U",
+                "x": 20,
+                "y": 1924,
+                "fields": {
+                  "KEY": "KeyM"
+                },
+                "next": {
+                  "block": {
+                    "type": "bc_broadcast",
+                    "id": "/qUH8z6z0fPd,jYkJ$]]",
+                    "fields": {
+                      "MSG": "zuendung"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "bc_when_message",
+                "id": "^$mqat!CO@k{3XfHt9lX",
+                "x": 20,
+                "y": 2052,
+                "fields": {
+                  "MSG": "zuendung"
+                },
+                "next": {
+                  "block": {
+                    "type": "controls_if",
+                    "id": "fj1q(2uBa+hmpJP!%(E3",
+                    "extraState": {
+                      "hasElse": true
+                    },
+                    "inputs": {
+                      "IF0": {
+                        "block": {
+                          "type": "logic_compare",
+                          "id": "YbMorjj2}:coG4.oI;aw",
+                          "fields": {
+                            "OP": "EQ"
+                          },
+                          "inputs": {
+                            "A": {
+                              "block": {
+                                "type": "variables_get",
+                                "id": "(=an{f1=~MzXrloq?V(r",
+                                "fields": {
+                                  "VAR": {
+                                    "id": "v_motor"
+                                  }
+                                }
+                              }
+                            },
+                            "B": {
+                              "block": {
+                                "type": "math_number",
+                                "id": "Y~$s0TmER;njbzq0f,|G",
+                                "fields": {
+                                  "NUM": 0
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "DO0": {
+                        "block": {
+                          "type": "variables_set",
+                          "id": "Lu0Y0tW+H4VR)r2Cks|^",
+                          "fields": {
+                            "VAR": {
+                              "id": "v_motor"
+                            }
+                          },
+                          "inputs": {
+                            "VALUE": {
+                              "shadow": {
+                                "type": "math_number",
+                                "id": "OCuMVkv`:jl`z|3-|uoX",
+                                "fields": {
+                                  "NUM": 2
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "bc_sound",
+                              "id": "8R?CKwmp`:3oAf2jL1Hn",
+                              "fields": {
+                                "ID": "starter"
+                              },
+                              "inputs": {
+                                "V": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "4S/w5pVW;LL[nxP:|:.i",
+                                    "fields": {
+                                      "NUM": 100
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "bc_wait",
+                                  "id": "xsk9]E0cO|vcn-tJgeH:",
+                                  "inputs": {
+                                    "S": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "md|^XLI`)UT2m=Q:}3*K",
+                                        "fields": {
+                                          "NUM": 1.1
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "bc_loop_start",
+                                      "id": "7N~QJu|/^Bd0^r%v(RoC",
+                                      "fields": {
+                                        "ID": "engine"
+                                      },
+                                      "inputs": {
+                                        "V": {
+                                          "shadow": {
+                                            "type": "math_number",
+                                            "id": "W]0jMx6|s8xpYOwK)%90",
+                                            "fields": {
+                                              "NUM": 80
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "bc_part_spin",
+                                          "id": "VVC[r@bxkloBlb_N$,vV",
+                                          "fields": {
+                                            "PART": "Engine_Fan",
+                                            "AXIS": "z"
+                                          },
+                                          "inputs": {
+                                            "V": {
+                                              "shadow": {
+                                                "type": "math_number",
+                                                "id": ":D0tK=kc;M=9e4rc+Jv}",
+                                                "fields": {
+                                                  "NUM": 1400
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "variables_set",
+                                              "id": "F.VTP,OJ#8Da}#)r,UKh",
+                                              "fields": {
+                                                "VAR": {
+                                                  "id": "v_motor"
+                                                }
+                                              },
+                                              "inputs": {
+                                                "VALUE": {
+                                                  "shadow": {
+                                                    "type": "math_number",
+                                                    "id": "eh*@wZ.E=%|KZRus.Tct",
+                                                    "fields": {
+                                                      "NUM": 1
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "ELSE": {
+                        "block": {
+                          "type": "controls_if",
+                          "id": "]n_:c@uEozk*G8(7Dm-B",
+                          "inputs": {
+                            "IF0": {
+                              "block": {
+                                "type": "logic_compare",
+                                "id": "AG;WWS|+1J6[2)SJcwvX",
+                                "fields": {
+                                  "OP": "EQ"
+                                },
+                                "inputs": {
+                                  "A": {
+                                    "block": {
+                                      "type": "variables_get",
+                                      "id": "yxPzOmmR(.1Dz!G0m{1}",
+                                      "fields": {
+                                        "VAR": {
+                                          "id": "v_motor"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "B": {
+                                    "block": {
+                                      "type": "math_number",
+                                      "id": "t6DN?N29Mkqh0luW)Y8d",
+                                      "fields": {
+                                        "NUM": 1
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "DO0": {
+                              "block": {
+                                "type": "variables_set",
+                                "id": ":U$(FKVN%U@~UX%dF-}(",
+                                "fields": {
+                                  "VAR": {
+                                    "id": "v_motor"
+                                  }
+                                },
+                                "inputs": {
+                                  "VALUE": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "|_X=X3PtU~cOmqpDbDS4",
+                                      "fields": {
+                                        "NUM": 0
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "bc_loop_stop",
+                                    "id": "=Cf`y^)0sDSbrKkE=yqu",
+                                    "fields": {
+                                      "ID": "engine"
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "bc_sound",
+                                        "id": "u8!Cg(l:xk:sjY.FBR|%",
+                                        "fields": {
+                                          "ID": "engine_off"
+                                        },
+                                        "inputs": {
+                                          "V": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "{)z.(UV^lv#;]pJWVo4T",
+                                              "fields": {
+                                                "NUM": 100
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "bc_part_spin",
+                                            "id": "[33Dd2CX/J8h[O%-_Q]w",
+                                            "fields": {
+                                              "PART": "Engine_Fan",
+                                              "AXIS": "z"
+                                            },
+                                            "inputs": {
+                                              "V": {
+                                                "shadow": {
+                                                  "type": "math_number",
+                                                  "id": "(Q5JoZ[q*H|;]yZ5/Jmg",
+                                                  "fields": {
+                                                    "NUM": 0
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "bc_when_key",
+                "id": "oXcL[pNF-_^cqeqSNibm",
+                "x": 920,
+                "y": 2260,
+                "fields": {
+                  "KEY": "KeyL"
+                },
+                "next": {
+                  "block": {
+                    "type": "bc_sound",
+                    "id": "#qu)FJvp6$fv`v5A,AG6",
+                    "fields": {
+                      "ID": "click"
+                    },
+                    "inputs": {
+                      "V": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "DXPH-NsrsWIo8[ZMq^_5",
+                          "fields": {
+                            "NUM": 100
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "controls_if",
+                        "id": "g0!jhzYoi{@$AB5XZx)Q",
+                        "extraState": {
+                          "hasElse": true
+                        },
+                        "inputs": {
+                          "IF0": {
+                            "block": {
+                              "type": "logic_compare",
+                              "id": "HXa#dMyLs}a4C?9re5P4",
+                              "fields": {
+                                "OP": "EQ"
+                              },
+                              "inputs": {
+                                "A": {
+                                  "block": {
+                                    "type": "variables_get",
+                                    "id": "[)bH*r7@Q}ySPnt;LHp/",
+                                    "fields": {
+                                      "VAR": {
+                                        "id": "v_licht"
+                                      }
+                                    }
+                                  }
+                                },
+                                "B": {
+                                  "block": {
+                                    "type": "math_number",
+                                    "id": "8Foxr5t+szuqGvISgTQ8",
+                                    "fields": {
+                                      "NUM": 0
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "DO0": {
+                            "block": {
+                              "type": "variables_set",
+                              "id": "1RAI)5e#K(h,mnOF2qNR",
+                              "fields": {
+                                "VAR": {
+                                  "id": "v_licht"
+                                }
+                              },
+                              "inputs": {
+                                "VALUE": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "{diz}p%6wp`sl5ETHfVO",
+                                    "fields": {
+                                      "NUM": 1
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "bc_part_glow",
+                                  "id": "J?)@Mx(p`m_Vx%HR_I=1",
+                                  "fields": {
+                                    "PART": "Headlight_L_Lens",
+                                    "C": "#fff2c0"
+                                  },
+                                  "inputs": {
+                                    "V": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "A#irCjL@mPmi6D:{!e8~",
+                                        "fields": {
+                                          "NUM": 8
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "bc_part_glow",
+                                      "id": "M,=Ukh#?Z#OR.PJ4dhSI",
+                                      "fields": {
+                                        "PART": "Headlight_R_Lens",
+                                        "C": "#fff2c0"
+                                      },
+                                      "inputs": {
+                                        "V": {
+                                          "shadow": {
+                                            "type": "math_number",
+                                            "id": "H)+AYoX,TwfHU+3v?jN!",
+                                            "fields": {
+                                              "NUM": 8
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "bc_part_glow",
+                                          "id": "4)WEQ5e7~8]Vi?$XC(,$",
+                                          "fields": {
+                                            "PART": "Taillight_L_Lens",
+                                            "C": "#ff2010"
+                                          },
+                                          "inputs": {
+                                            "V": {
+                                              "shadow": {
+                                                "type": "math_number",
+                                                "id": "?X6hEm5-g)3_qQuHJpG4",
+                                                "fields": {
+                                                  "NUM": 4
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "bc_part_glow",
+                                              "id": "{ToR49[ttrh2ULk*_`0t",
+                                              "fields": {
+                                                "PART": "Taillight_R_Lens",
+                                                "C": "#ff2010"
+                                              },
+                                              "inputs": {
+                                                "V": {
+                                                  "shadow": {
+                                                    "type": "math_number",
+                                                    "id": "0aD9JaI|aTDF4kufR6Vm",
+                                                    "fields": {
+                                                      "NUM": 4
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "ELSE": {
+                            "block": {
+                              "type": "variables_set",
+                              "id": "6EO!uAJfuWs@0!oZ/KE1",
+                              "fields": {
+                                "VAR": {
+                                  "id": "v_licht"
+                                }
+                              },
+                              "inputs": {
+                                "VALUE": {
+                                  "shadow": {
+                                    "type": "math_number",
+                                    "id": "c]Ktpk!`Em$Q8!Y0W];Z",
+                                    "fields": {
+                                      "NUM": 0
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "bc_part_glow",
+                                  "id": "2;toV.D)FM?5-o5nQ*y7",
+                                  "fields": {
+                                    "PART": "Headlight_L_Lens",
+                                    "C": "#fff2c0"
+                                  },
+                                  "inputs": {
+                                    "V": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "-gi6VgS~fr`r?9v--Ure",
+                                        "fields": {
+                                          "NUM": 0
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "bc_part_glow",
+                                      "id": "6WS/=KKOPZj~s:O6Ylq5",
+                                      "fields": {
+                                        "PART": "Headlight_R_Lens",
+                                        "C": "#fff2c0"
+                                      },
+                                      "inputs": {
+                                        "V": {
+                                          "shadow": {
+                                            "type": "math_number",
+                                            "id": "8l1CAwanq~~u;kx~}BFc",
+                                            "fields": {
+                                              "NUM": 0
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "bc_part_glow",
+                                          "id": "B)w_N=N)J.x[utMcV}D7",
+                                          "fields": {
+                                            "PART": "Taillight_L_Lens",
+                                            "C": "#ff2010"
+                                          },
+                                          "inputs": {
+                                            "V": {
+                                              "shadow": {
+                                                "type": "math_number",
+                                                "id": ".Hr6V!MtE8r-V{Z5BKQI",
+                                                "fields": {
+                                                  "NUM": 0
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "bc_part_glow",
+                                              "id": "?=E{rU3Shw^^OXh.,r{f",
+                                              "fields": {
+                                                "PART": "Taillight_R_Lens",
+                                                "C": "#ff2010"
+                                              },
+                                              "inputs": {
+                                                "V": {
+                                                  "shadow": {
+                                                    "type": "math_number",
+                                                    "id": "vQXh7e*7^X^6yBqaVJ7w",
+                                                    "fields": {
+                                                      "NUM": 0
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "bc_when_key",
+                "id": "V)jsQl2VZ}!Z+t_t9bH9",
+                "x": 20,
+                "y": 2612,
+                "fields": {
+                  "KEY": "KeyH"
+                },
+                "next": {
+                  "block": {
+                    "type": "bc_sound",
+                    "id": "qxq5i7zkMd[W^EqTt}A+",
+                    "fields": {
+                      "ID": "horn"
+                    },
+                    "inputs": {
+                      "V": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "T=$rG7#lBe$c0[BhA?jt",
+                          "fields": {
+                            "NUM": 100
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "bc_when_tick",
+                "id": "h0eQ.tI0}.rwwFzyM,DT",
+                "x": 20,
+                "y": 2740,
+                "next": {
+                  "block": {
+                    "type": "variables_set",
+                    "id": "Y*8Je;Nf,^l#aN0adok@",
+                    "fields": {
+                      "VAR": {
+                        "id": "v_ziel"
+                      }
+                    },
+                    "inputs": {
+                      "VALUE": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "Z*;t?#CrJ0o6Be`cZ.IJ",
+                          "fields": {
+                            "NUM": 0
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "variables_set",
+                        "id": ";%A~uW}?UaB:;Dt%i#(t",
+                        "fields": {
+                          "VAR": {
+                            "id": "v_lenkZiel"
+                          }
+                        },
+                        "inputs": {
+                          "VALUE": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "0c=HO.CP*nSGy/VU:q3.",
+                              "fields": {
+                                "NUM": 0
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "controls_if",
+                            "id": "X~u2A!.EN2Bnpu0E7x7A",
+                            "inputs": {
+                              "IF0": {
+                                "block": {
+                                  "type": "logic_compare",
+                                  "id": "IM}+sGgEPhcAbE_P_d8d",
+                                  "fields": {
+                                    "OP": "EQ"
+                                  },
+                                  "inputs": {
+                                    "A": {
+                                      "block": {
+                                        "type": "variables_get",
+                                        "id": "L~D?qNvZH3bGtRiJ1x~%",
+                                        "fields": {
+                                          "VAR": {
+                                            "id": "v_motor"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "B": {
+                                      "block": {
+                                        "type": "math_number",
+                                        "id": "c|,#282]4u2LdxyLPld[",
+                                        "fields": {
+                                          "NUM": 1
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "DO0": {
+                                "block": {
+                                  "type": "controls_if",
+                                  "id": ":f}[Mw)J$o+jo)4]t|0n",
+                                  "inputs": {
+                                    "IF0": {
+                                      "block": {
+                                        "type": "bc_key_down",
+                                        "id": "^N.:})m+SI*MfX)~z(;)",
+                                        "fields": {
+                                          "KEY": "ArrowUp"
+                                        }
+                                      }
+                                    },
+                                    "DO0": {
+                                      "block": {
+                                        "type": "variables_set",
+                                        "id": "2(.nozX+sXS0$A~Y]*y$",
+                                        "fields": {
+                                          "VAR": {
+                                            "id": "v_ziel"
+                                          }
+                                        },
+                                        "inputs": {
+                                          "VALUE": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "5)!EMD6QGuA4DR_j^ese",
+                                              "fields": {
+                                                "NUM": 7
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "controls_if",
+                                      "id": "3@m-RB:^9Eo~ztozlza$",
+                                      "inputs": {
+                                        "IF0": {
+                                          "block": {
+                                            "type": "bc_key_down",
+                                            "id": "*]#MV=cz0[[GpnvLRiOJ",
+                                            "fields": {
+                                              "KEY": "ArrowDown"
+                                            }
+                                          }
+                                        },
+                                        "DO0": {
+                                          "block": {
+                                            "type": "variables_set",
+                                            "id": "S)?uB.e3uM6X5{IT,mKa",
+                                            "fields": {
+                                              "VAR": {
+                                                "id": "v_ziel"
+                                              }
+                                            },
+                                            "inputs": {
+                                              "VALUE": {
+                                                "shadow": {
+                                                  "type": "math_number",
+                                                  "id": "l*6Ob0xz$k./G!FB}oWh",
+                                                  "fields": {
+                                                    "NUM": -3
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "controls_if",
+                                "id": "nT7:G9GF8:PF,zk/Vg/,",
+                                "inputs": {
+                                  "IF0": {
+                                    "block": {
+                                      "type": "bc_key_down",
+                                      "id": "}fBsT:BPblIUDLM!0I=(",
+                                      "fields": {
+                                        "KEY": "ArrowLeft"
+                                      }
+                                    }
+                                  },
+                                  "DO0": {
+                                    "block": {
+                                      "type": "variables_set",
+                                      "id": "kL#:c/M7.2ZQ=_s%@6FL",
+                                      "fields": {
+                                        "VAR": {
+                                          "id": "v_lenkZiel"
+                                        }
+                                      },
+                                      "inputs": {
+                                        "VALUE": {
+                                          "shadow": {
+                                            "type": "math_number",
+                                            "id": "0GUnc-fAb#6UJ.ivXCfD",
+                                            "fields": {
+                                              "NUM": 1
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "controls_if",
+                                    "id": "U09{PQ4ZesJIWsb#1?4!",
+                                    "inputs": {
+                                      "IF0": {
+                                        "block": {
+                                          "type": "bc_key_down",
+                                          "id": "}$lRjW#DE%b]A2hM;JKZ",
+                                          "fields": {
+                                            "KEY": "ArrowRight"
+                                          }
+                                        }
+                                      },
+                                      "DO0": {
+                                        "block": {
+                                          "type": "variables_set",
+                                          "id": "P$D`GDXr`G]Ee)WzLwq4",
+                                          "fields": {
+                                            "VAR": {
+                                              "id": "v_lenkZiel"
+                                            }
+                                          },
+                                          "inputs": {
+                                            "VALUE": {
+                                              "shadow": {
+                                                "type": "math_number",
+                                                "id": "4[2lftR$Dq3Of(Sg5=fs",
+                                                "fields": {
+                                                  "NUM": -1
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "variables_set",
+                                        "id": "`k/sgZ6iH1U`ddu^Kpur",
+                                        "fields": {
+                                          "VAR": {
+                                            "id": "v_tempo"
+                                          }
+                                        },
+                                        "inputs": {
+                                          "VALUE": {
+                                            "block": {
+                                              "type": "math_arithmetic",
+                                              "id": "NrDJA{XOD!CR)*:Lf~-.",
+                                              "fields": {
+                                                "OP": "ADD"
+                                              },
+                                              "inputs": {
+                                                "A": {
+                                                  "block": {
+                                                    "type": "variables_get",
+                                                    "id": "~J#gZ6Ic#Df+kQhCg]zd",
+                                                    "fields": {
+                                                      "VAR": {
+                                                        "id": "v_tempo"
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "B": {
+                                                  "block": {
+                                                    "type": "math_arithmetic",
+                                                    "id": "-Nl0nu9LsIo,WNYuXY(2",
+                                                    "fields": {
+                                                      "OP": "MULTIPLY"
+                                                    },
+                                                    "inputs": {
+                                                      "A": {
+                                                        "block": {
+                                                          "type": "math_arithmetic",
+                                                          "id": "?B%PmhdZ5N)HnypPotAr",
+                                                          "fields": {
+                                                            "OP": "MULTIPLY"
+                                                          },
+                                                          "inputs": {
+                                                            "A": {
+                                                              "block": {
+                                                                "type": "math_arithmetic",
+                                                                "id": "p|pHLWhaP@!If#rY~~R=",
+                                                                "fields": {
+                                                                  "OP": "MINUS"
+                                                                },
+                                                                "inputs": {
+                                                                  "A": {
+                                                                    "block": {
+                                                                      "type": "variables_get",
+                                                                      "id": "!YNpQYSc|-C8sGRv7|^^",
+                                                                      "fields": {
+                                                                        "VAR": {
+                                                                          "id": "v_ziel"
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "B": {
+                                                                    "block": {
+                                                                      "type": "variables_get",
+                                                                      "id": "E(7JVAb{:lCaP)4I*)J/",
+                                                                      "fields": {
+                                                                        "VAR": {
+                                                                          "id": "v_tempo"
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "B": {
+                                                              "block": {
+                                                                "type": "bc_dt",
+                                                                "id": "yWv14`R?1m6QK4KFG-@R"
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "B": {
+                                                        "block": {
+                                                          "type": "math_number",
+                                                          "id": "laju7|8E_KN/}/cQLxe-",
+                                                          "fields": {
+                                                            "NUM": 1.2
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "variables_set",
+                                            "id": "^:4_$zV2LTjS{Kk3otwC",
+                                            "fields": {
+                                              "VAR": {
+                                                "id": "v_lenk"
+                                              }
+                                            },
+                                            "inputs": {
+                                              "VALUE": {
+                                                "block": {
+                                                  "type": "math_arithmetic",
+                                                  "id": "/4eow,aZ-MD[z,Oc/fo7",
+                                                  "fields": {
+                                                    "OP": "ADD"
+                                                  },
+                                                  "inputs": {
+                                                    "A": {
+                                                      "block": {
+                                                        "type": "variables_get",
+                                                        "id": "m3yYJh^[yU{[f3|u*XI9",
+                                                        "fields": {
+                                                          "VAR": {
+                                                            "id": "v_lenk"
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "B": {
+                                                      "block": {
+                                                        "type": "math_arithmetic",
+                                                        "id": "pIkhC4W:=HY-NE,L8D}O",
+                                                        "fields": {
+                                                          "OP": "MULTIPLY"
+                                                        },
+                                                        "inputs": {
+                                                          "A": {
+                                                            "block": {
+                                                              "type": "math_arithmetic",
+                                                              "id": "bdBVv$x8a3ylIPG53+b4",
+                                                              "fields": {
+                                                                "OP": "MULTIPLY"
+                                                              },
+                                                              "inputs": {
+                                                                "A": {
+                                                                  "block": {
+                                                                    "type": "math_arithmetic",
+                                                                    "id": "F54R`D|OC(5;L.{Vh$q-",
+                                                                    "fields": {
+                                                                      "OP": "MINUS"
+                                                                    },
+                                                                    "inputs": {
+                                                                      "A": {
+                                                                        "block": {
+                                                                          "type": "variables_get",
+                                                                          "id": "5rt0(+FpOkd^U_@5_SrX",
+                                                                          "fields": {
+                                                                            "VAR": {
+                                                                              "id": "v_lenkZiel"
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "B": {
+                                                                        "block": {
+                                                                          "type": "variables_get",
+                                                                          "id": "$LM:Wivf@Fj[0-a$Dr|]",
+                                                                          "fields": {
+                                                                            "VAR": {
+                                                                              "id": "v_lenk"
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "B": {
+                                                                  "block": {
+                                                                    "type": "bc_dt",
+                                                                    "id": "TkQm)zz9.Px4}E]uOl$g"
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          "B": {
+                                                            "block": {
+                                                              "type": "math_number",
+                                                              "id": "BtVXD[@:.|Cq:S{#?;#{",
+                                                              "fields": {
+                                                                "NUM": 4
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "bc_move_forward",
+                                                "id": "|/O470aP.Ab,`tF|3[nx",
+                                                "inputs": {
+                                                  "D": {
+                                                    "block": {
+                                                      "type": "math_arithmetic",
+                                                      "id": "N8V,30vAYw%l,|MRT_)%",
+                                                      "fields": {
+                                                        "OP": "MULTIPLY"
+                                                      },
+                                                      "inputs": {
+                                                        "A": {
+                                                          "block": {
+                                                            "type": "math_arithmetic",
+                                                            "id": ";?Feb$G5Oupd#!Iq{m73",
+                                                            "fields": {
+                                                              "OP": "MULTIPLY"
+                                                            },
+                                                            "inputs": {
+                                                              "A": {
+                                                                "block": {
+                                                                  "type": "variables_get",
+                                                                  "id": "Q{19OS%)[`aeF,.f`k%l",
+                                                                  "fields": {
+                                                                    "VAR": {
+                                                                      "id": "v_tempo"
+                                                                    }
+                                                                  }
+                                                                }
+                                                              },
+                                                              "B": {
+                                                                "block": {
+                                                                  "type": "bc_dt",
+                                                                  "id": "IlW@0%TTe?p=0kN]Y=o$"
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "B": {
+                                                          "block": {
+                                                            "type": "math_number",
+                                                            "id": "f0_G8ZMxO7[?cy*75(W}",
+                                                            "fields": {
+                                                              "NUM": -1
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "bc_rotate_by",
+                                                    "id": "r;pf~UL3/SAOm{Y])NrC",
+                                                    "inputs": {
+                                                      "X": {
+                                                        "shadow": {
+                                                          "type": "math_number",
+                                                          "id": "cO%6MBSIWI}Y2%!ZkIwa",
+                                                          "fields": {
+                                                            "NUM": 0
+                                                          }
+                                                        }
+                                                      },
+                                                      "Y": {
+                                                        "block": {
+                                                          "type": "math_arithmetic",
+                                                          "id": "97o{1Q9q^2^+2#*Pr|Nv",
+                                                          "fields": {
+                                                            "OP": "MULTIPLY"
+                                                          },
+                                                          "inputs": {
+                                                            "A": {
+                                                              "block": {
+                                                                "type": "math_arithmetic",
+                                                                "id": "jD3DRHrdjdQC3b1a/r.q",
+                                                                "fields": {
+                                                                  "OP": "MULTIPLY"
+                                                                },
+                                                                "inputs": {
+                                                                  "A": {
+                                                                    "block": {
+                                                                      "type": "math_arithmetic",
+                                                                      "id": "wGhG(}^N#XJb|n73R8GC",
+                                                                      "fields": {
+                                                                        "OP": "MULTIPLY"
+                                                                      },
+                                                                      "inputs": {
+                                                                        "A": {
+                                                                          "block": {
+                                                                            "type": "variables_get",
+                                                                            "id": "oF{$i{(M!1j2IXd92Z6,",
+                                                                            "fields": {
+                                                                              "VAR": {
+                                                                                "id": "v_lenk"
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "B": {
+                                                                          "block": {
+                                                                            "type": "variables_get",
+                                                                            "id": ";/VKV*eb;AMB41QYD/o{",
+                                                                            "fields": {
+                                                                              "VAR": {
+                                                                                "id": "v_tempo"
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "B": {
+                                                                    "block": {
+                                                                      "type": "bc_dt",
+                                                                      "id": "w$Sy0C/pC-:155c?LoyB"
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "B": {
+                                                              "block": {
+                                                                "type": "math_number",
+                                                                "id": "GAO4onLq=]4Y77ZW#CD,",
+                                                                "fields": {
+                                                                  "NUM": 9
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "Z": {
+                                                        "shadow": {
+                                                          "type": "math_number",
+                                                          "id": "/De88fh$mdYGN/d?G~$E",
+                                                          "fields": {
+                                                            "NUM": 0
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "bc_part_spin",
+                                                        "id": "gRa]z}z]Yu0oVIT?sG[}",
+                                                        "fields": {
+                                                          "PART": "Wheel_FL",
+                                                          "AXIS": "x"
+                                                        },
+                                                        "inputs": {
+                                                          "V": {
+                                                            "block": {
+                                                              "type": "math_arithmetic",
+                                                              "id": "$A+Asr](|4qi3A_}TNd)",
+                                                              "fields": {
+                                                                "OP": "MULTIPLY"
+                                                              },
+                                                              "inputs": {
+                                                                "A": {
+                                                                  "block": {
+                                                                    "type": "variables_get",
+                                                                    "id": "[+1]_=O+Z379@^Fj:y|1",
+                                                                    "fields": {
+                                                                      "VAR": {
+                                                                        "id": "v_tempo"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "B": {
+                                                                  "block": {
+                                                                    "type": "math_number",
+                                                                    "id": ",;OBmbmxHO.gq5V08nT*",
+                                                                    "fields": {
+                                                                      "NUM": 161
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "next": {
+                                                          "block": {
+                                                            "type": "bc_part_spin",
+                                                            "id": "|okGB)Y3S?4W^h+fbU}s",
+                                                            "fields": {
+                                                              "PART": "Wheel_FR",
+                                                              "AXIS": "x"
+                                                            },
+                                                            "inputs": {
+                                                              "V": {
+                                                                "block": {
+                                                                  "type": "math_arithmetic",
+                                                                  "id": "l3qU,bcZDlv5o)Z$L)D1",
+                                                                  "fields": {
+                                                                    "OP": "MULTIPLY"
+                                                                  },
+                                                                  "inputs": {
+                                                                    "A": {
+                                                                      "block": {
+                                                                        "type": "variables_get",
+                                                                        "id": "iiREE9(~HvosjUNI$s#t",
+                                                                        "fields": {
+                                                                          "VAR": {
+                                                                            "id": "v_tempo"
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "B": {
+                                                                      "block": {
+                                                                        "type": "math_number",
+                                                                        "id": "Xf)v%ppFohA7{Ns^3__9",
+                                                                        "fields": {
+                                                                          "NUM": 161
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "next": {
+                                                              "block": {
+                                                                "type": "bc_part_spin",
+                                                                "id": "Iq@@FtEPkvseOnm,GSKb",
+                                                                "fields": {
+                                                                  "PART": "Wheel_RL",
+                                                                  "AXIS": "x"
+                                                                },
+                                                                "inputs": {
+                                                                  "V": {
+                                                                    "block": {
+                                                                      "type": "math_arithmetic",
+                                                                      "id": "c=7Gq)`O4i008u~9F}v*",
+                                                                      "fields": {
+                                                                        "OP": "MULTIPLY"
+                                                                      },
+                                                                      "inputs": {
+                                                                        "A": {
+                                                                          "block": {
+                                                                            "type": "variables_get",
+                                                                            "id": "JOI2tP{nqvBGx?EGPR-Z",
+                                                                            "fields": {
+                                                                              "VAR": {
+                                                                                "id": "v_tempo"
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "B": {
+                                                                          "block": {
+                                                                            "type": "math_number",
+                                                                            "id": "0m75+2/sTg0sT+koIVe5",
+                                                                            "fields": {
+                                                                              "NUM": 161
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "next": {
+                                                                  "block": {
+                                                                    "type": "bc_part_spin",
+                                                                    "id": "+JX`cz2(y(Ol}t1~5.5[",
+                                                                    "fields": {
+                                                                      "PART": "Wheel_RR",
+                                                                      "AXIS": "x"
+                                                                    },
+                                                                    "inputs": {
+                                                                      "V": {
+                                                                        "block": {
+                                                                          "type": "math_arithmetic",
+                                                                          "id": "h1jP3=3BMQz(yqj^)jo3",
+                                                                          "fields": {
+                                                                            "OP": "MULTIPLY"
+                                                                          },
+                                                                          "inputs": {
+                                                                            "A": {
+                                                                              "block": {
+                                                                                "type": "variables_get",
+                                                                                "id": "B)kU(t9Qrig!4u!`0N39",
+                                                                                "fields": {
+                                                                                  "VAR": {
+                                                                                    "id": "v_tempo"
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "B": {
+                                                                              "block": {
+                                                                                "type": "math_number",
+                                                                                "id": "asvY8n(T.0SecbWf:d^5",
+                                                                                "fields": {
+                                                                                  "NUM": 161
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "next": {
+                                                                      "block": {
+                                                                        "type": "bc_part_set_angle",
+                                                                        "id": "07OD|a,*_VYjQUAL@crA",
+                                                                        "fields": {
+                                                                          "PART": "Wheel_FL",
+                                                                          "AXIS": "y"
+                                                                        },
+                                                                        "inputs": {
+                                                                          "DEG": {
+                                                                            "block": {
+                                                                              "type": "math_arithmetic",
+                                                                              "id": "`bmec?U2YqL.}9D)Jhac",
+                                                                              "fields": {
+                                                                                "OP": "MULTIPLY"
+                                                                              },
+                                                                              "inputs": {
+                                                                                "A": {
+                                                                                  "block": {
+                                                                                    "type": "variables_get",
+                                                                                    "id": "O5m`,3LhUERDP?oWz!pW",
+                                                                                    "fields": {
+                                                                                      "VAR": {
+                                                                                        "id": "v_lenk"
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "B": {
+                                                                                  "block": {
+                                                                                    "type": "math_number",
+                                                                                    "id": "xOKktrO|PX(-xq~+)w^p",
+                                                                                    "fields": {
+                                                                                      "NUM": 28
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "next": {
+                                                                          "block": {
+                                                                            "type": "bc_part_set_angle",
+                                                                            "id": "LTQ/;a0:eBi@-Zq[AbLV",
+                                                                            "fields": {
+                                                                              "PART": "Wheel_FR",
+                                                                              "AXIS": "y"
+                                                                            },
+                                                                            "inputs": {
+                                                                              "DEG": {
+                                                                                "block": {
+                                                                                  "type": "math_arithmetic",
+                                                                                  "id": "0]]R*Nri#pP{J{`E?UR4",
+                                                                                  "fields": {
+                                                                                    "OP": "MULTIPLY"
+                                                                                  },
+                                                                                  "inputs": {
+                                                                                    "A": {
+                                                                                      "block": {
+                                                                                        "type": "variables_get",
+                                                                                        "id": "`ODfbqQkHvTVX}b?OwoQ",
+                                                                                        "fields": {
+                                                                                          "VAR": {
+                                                                                            "id": "v_lenk"
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    },
+                                                                                    "B": {
+                                                                                      "block": {
+                                                                                        "type": "math_number",
+                                                                                        "id": "cJeNKJJ!,P}2]G7DW`jI",
+                                                                                        "fields": {
+                                                                                          "NUM": 28
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "next": {
+                                                                              "block": {
+                                                                                "type": "bc_part_set_angle",
+                                                                                "id": "EFMHh,AK$T^sgEcS?wD1",
+                                                                                "fields": {
+                                                                                  "PART": "Steering_Wheel",
+                                                                                  "AXIS": "y"
+                                                                                },
+                                                                                "inputs": {
+                                                                                  "DEG": {
+                                                                                    "block": {
+                                                                                      "type": "math_arithmetic",
+                                                                                      "id": "5]F?-r!|M^J0Tt7DIs~S",
+                                                                                      "fields": {
+                                                                                        "OP": "MULTIPLY"
+                                                                                      },
+                                                                                      "inputs": {
+                                                                                        "A": {
+                                                                                          "block": {
+                                                                                            "type": "variables_get",
+                                                                                            "id": "Tq/EB;goE`=WG.1nf]{w",
+                                                                                            "fields": {
+                                                                                              "VAR": {
+                                                                                                "id": "v_lenk"
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        },
+                                                                                        "B": {
+                                                                                          "block": {
+                                                                                            "type": "math_number",
+                                                                                            "id": "K@A,D6)U[DSt1/WeK;=K",
+                                                                                            "fields": {
+                                                                                              "NUM": 120
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "next": {
+                                                                                  "block": {
+                                                                                    "type": "bc_loop_pitch",
+                                                                                    "id": "1eE~n.3q3o_ZSpv/B94n",
+                                                                                    "fields": {
+                                                                                      "ID": "engine"
+                                                                                    },
+                                                                                    "inputs": {
+                                                                                      "V": {
+                                                                                        "block": {
+                                                                                          "type": "math_arithmetic",
+                                                                                          "id": "|5MLd!T}$gSG-2ysQ8^]",
+                                                                                          "fields": {
+                                                                                            "OP": "ADD"
+                                                                                          },
+                                                                                          "inputs": {
+                                                                                            "A": {
+                                                                                              "block": {
+                                                                                                "type": "math_number",
+                                                                                                "id": "R;4h4`lUtZlLXFx%S[$7",
+                                                                                                "fields": {
+                                                                                                  "NUM": 100
+                                                                                                }
+                                                                                              }
+                                                                                            },
+                                                                                            "B": {
+                                                                                              "block": {
+                                                                                                "type": "math_arithmetic",
+                                                                                                "id": "}57PabG^W#SB-M7A~B%v",
+                                                                                                "fields": {
+                                                                                                  "OP": "MULTIPLY"
+                                                                                                },
+                                                                                                "inputs": {
+                                                                                                  "A": {
+                                                                                                    "block": {
+                                                                                                      "type": "math_single",
+                                                                                                      "id": "_l~!?[gUr.pifu2ieg5P",
+                                                                                                      "fields": {
+                                                                                                        "OP": "ABS"
+                                                                                                      },
+                                                                                                      "inputs": {
+                                                                                                        "NUM": {
+                                                                                                          "block": {
+                                                                                                            "type": "variables_get",
+                                                                                                            "id": "6Yd(y|9@MTL8-Lu5[E[T",
+                                                                                                            "fields": {
+                                                                                                              "VAR": {
+                                                                                                                "id": "v_tempo"
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                  },
+                                                                                                  "B": {
+                                                                                                    "block": {
+                                                                                                      "type": "math_number",
+                                                                                                      "id": "Ivd],ZwK?KKo|2!dUd8h",
+                                                                                                      "fields": {
+                                                                                                        "NUM": 18
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "variables": [
+            {
+              "name": "motor",
+              "id": "v_motor"
+            },
+            {
+              "name": "licht",
+              "id": "v_licht"
+            },
+            {
+              "name": "tuerL",
+              "id": "v_tuerL"
+            },
+            {
+              "name": "tuerR",
+              "id": "v_tuerR"
+            },
+            {
+              "name": "fenster",
+              "id": "v_fenster"
+            },
+            {
+              "name": "haube",
+              "id": "v_haube"
+            },
+            {
+              "name": "koffer",
+              "id": "v_koffer"
+            },
+            {
+              "name": "fach",
+              "id": "v_fach"
+            },
+            {
+              "name": "tempo",
+              "id": "v_tempo"
+            },
+            {
+              "name": "ziel",
+              "id": "v_ziel"
+            },
+            {
+              "name": "lenk",
+              "id": "v_lenk"
+            },
+            {
+              "name": "lenkZiel",
+              "id": "v_lenkZiel"
+            }
+          ]
+        },
+        "code": "var motor, ziel, licht, tuerL, tuerR, haube, koffer, fach, fenster, lenkZiel, tempo, lenk;\n\n\napi.on('start', async () => {\n  motor = 0;\n  licht = 0;\n  tuerL = 0;\n  tuerR = 0;\n  fenster = 0;\n  haube = 0;\n  koffer = 0;\n  fach = 0;\n  tempo = 0;\n  ziel = 0;\n  lenk = 0;\n  lenkZiel = 0;\n  api.showText('Oldtimer — E: Türen, Fenster, Haube, Kofferraum · M: Motor · L: Licht · H: Hupe · Pfeiltasten: fahren', 8);\n});\napi.on('partInteract', async () => {\n  if (tuerL == 0) {\n    tuerL = 1;\n    api.sound(\"door_open\", 100);\n    await api.partTurnTo(\"Door_L\", \"y\", -65, 0.9);\n  } else {\n    tuerL = 0;\n    await api.partTurnTo(\"Door_L\", \"y\", 0, 0.675);\n    api.sound(\"door_close\", 100);\n  }\n}, \"Fahrertür\", \"Door_L\");\napi.on('partInteract', async () => {\n  if (tuerR == 0) {\n    tuerR = 1;\n    api.sound(\"door_open\", 100);\n    await api.partTurnTo(\"Door_R\", \"y\", 65, 0.9);\n  } else {\n    tuerR = 0;\n    await api.partTurnTo(\"Door_R\", \"y\", 0, 0.675);\n    api.sound(\"door_close\", 100);\n  }\n}, \"Beifahrertür\", \"Door_R\");\napi.on('partInteract', async () => {\n  if (haube == 0) {\n    haube = 1;\n    api.sound(\"squeak\", 100);\n    await api.partTurnTo(\"Hood\", \"x\", -50, 1.2);\n  } else {\n    haube = 0;\n    await api.partTurnTo(\"Hood\", \"x\", 0, 0.8999999999999999);\n    api.sound(\"thud\", 100);\n  }\n}, \"Motorhaube\", \"Hood\");\napi.on('partInteract', async () => {\n  if (koffer == 0) {\n    koffer = 1;\n    api.sound(\"squeak\", 100);\n    await api.partTurnTo(\"Trunk_Lid\", \"x\", 65, 1.1);\n  } else {\n    koffer = 0;\n    await api.partTurnTo(\"Trunk_Lid\", \"x\", 0, 0.8250000000000001);\n    api.sound(\"thud\", 100);\n  }\n}, \"Kofferraum\", \"Trunk_Lid\");\napi.on('partInteract', async () => {\n  if (fach == 0) {\n    fach = 1;\n    api.sound(\"click\", 100);\n    await api.partTurnTo(\"Glovebox_Door\", \"x\", -70, 0.4);\n  } else {\n    fach = 0;\n    await api.partTurnTo(\"Glovebox_Door\", \"x\", 0, 0.30000000000000004);\n    api.sound(\"click\", 100);\n  }\n}, \"Handschuhfach\", \"Glovebox_Door\");\napi.on('partInteract', async () => {\n  if (fenster == 0) {\n    fenster = 1;\n    await api.partMoveTo(\"Door_L_Glass\", 0, -0.42, 0, 1.4);\n  } else {\n    fenster = 0;\n    await api.partMoveTo(\"Door_L_Glass\", 0, 0, 0, 1.4);\n  }\n}, \"Fenster\", \"Door_L_Glass\");\napi.on('partInteract', async () => {\n  api.broadcast(\"zuendung\");\n}, \"Motor starten / abstellen\", \"Steering_Wheel\");\napi.on('key', async () => {\n  api.broadcast(\"zuendung\");\n}, \"KeyM\");\napi.on('message', async () => {\n  if (motor == 0) {\n    motor = 2;\n    api.sound(\"starter\", 100);\n    await api.wait(1.1);\n    api.loopStart(\"engine\", 80);\n    api.partSpin(\"Engine_Fan\", \"z\", 1400);\n    motor = 1;\n  } else {\n    if (motor == 1) {\n      motor = 0;\n      api.loopStop(\"engine\");\n      api.sound(\"engine_off\", 100);\n      api.partSpin(\"Engine_Fan\", \"z\", 0);\n    }\n  }\n}, \"zuendung\");\napi.on('key', async () => {\n  api.sound(\"click\", 100);\n  if (licht == 0) {\n    licht = 1;\n    api.partGlow(\"Headlight_L_Lens\", \"#fff2c0\", 8);\n    api.partGlow(\"Headlight_R_Lens\", \"#fff2c0\", 8);\n    api.partGlow(\"Taillight_L_Lens\", \"#ff2010\", 4);\n    api.partGlow(\"Taillight_R_Lens\", \"#ff2010\", 4);\n  } else {\n    licht = 0;\n    api.partGlow(\"Headlight_L_Lens\", \"#fff2c0\", 0);\n    api.partGlow(\"Headlight_R_Lens\", \"#fff2c0\", 0);\n    api.partGlow(\"Taillight_L_Lens\", \"#ff2010\", 0);\n    api.partGlow(\"Taillight_R_Lens\", \"#ff2010\", 0);\n  }\n}, \"KeyL\");\napi.on('key', async () => {\n  api.sound(\"horn\", 100);\n}, \"KeyH\");\napi.on('tick', async () => {\n  ziel = 0;\n  lenkZiel = 0;\n  if (motor == 1) {\n    if (api.keyDown(\"ArrowUp\")) {\n      ziel = 7;\n    }\n    if (api.keyDown(\"ArrowDown\")) {\n      ziel = -3;\n    }\n  }\n  if (api.keyDown(\"ArrowLeft\")) {\n    lenkZiel = 1;\n  }\n  if (api.keyDown(\"ArrowRight\")) {\n    lenkZiel = -1;\n  }\n  tempo = tempo + (ziel - tempo) * api.dt() * 1.2;\n  lenk = lenk + (lenkZiel - lenk) * api.dt() * 4;\n  api.moveForward(tempo * api.dt() * -1);\n  api.rotateBy(0, lenk * tempo * api.dt() * 9, 0);\n  api.partSpin(\"Wheel_FL\", \"x\", tempo * 161);\n  api.partSpin(\"Wheel_FR\", \"x\", tempo * 161);\n  api.partSpin(\"Wheel_RL\", \"x\", tempo * 161);\n  api.partSpin(\"Wheel_RR\", \"x\", tempo * 161);\n  api.partSetAngle(\"Wheel_FL\", \"y\", lenk * 28);\n  api.partSetAngle(\"Wheel_FR\", \"y\", lenk * 28);\n  api.partSetAngle(\"Steering_Wheel\", \"y\", lenk * 120);\n  api.loopPitch(\"engine\", 100 + Math.abs(tempo) * 18);\n});\n"
+      }
+    },
+    {
+      "id": "ot_spawn",
+      "name": "Player Start",
+      "type": "spawn",
+      "pos": [
+        3.2,
+        0,
+        1.2
+      ],
+      "rot": [
+        0,
+        90,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "props": {}
+    }
+  ]
+}

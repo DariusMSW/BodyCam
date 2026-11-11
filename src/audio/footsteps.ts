@@ -30,6 +30,14 @@ function audio(): AudioContext | null {
   return ctx;
 }
 
+/** Gemeinsamer Ausgang für andere Klangquellen (Script-Klänge): Kontext, Master-Regler, Rauschpuffer */
+export function audioOutput(): { ctx: AudioContext; out: AudioNode; noise: AudioBuffer } | null {
+  const a = audio();
+  if (!a || !master || !noise) return null;
+  if (a.state !== 'running') void a.resume();
+  return { ctx: a, out: master, noise };
+}
+
 /** beim ersten Klick/Tastendruck freischalten */
 export function unlockAudio(): void {
   const unlock = () => {

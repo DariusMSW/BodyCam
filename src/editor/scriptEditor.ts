@@ -1,5 +1,6 @@
 import * as Blockly from 'blockly';
-import { BLOCKLY_THEME, TOOLBOX, generateCode, installBlocks } from '../scripting/blocks.ts';
+import { BLOCKLY_THEME, TOOLBOX, generateCode, installBlocks, setScriptParts } from '../scripting/blocks.ts';
+import { loadModel } from '../world/modelStore.ts';
 import type { MapObjectData, ScriptData } from '../world/mapFormat.ts';
 import { ASSETS } from '../world/assets.ts';
 import { h, iconEl, toast } from './ui.ts';
@@ -67,6 +68,7 @@ export class ScriptEditor {
     this.title.append(h('span', { class: 'tag' }, 'SCRIPT'), obj.name);
     this.sub.textContent = ASSETS[obj.type]?.label ?? obj.type;
     this.back.classList.remove('hidden');
+    this.loadParts(obj);
     if (!this.ws) {
       this.ws = Blockly.inject(this.host, {
         toolbox: TOOLBOX,
@@ -96,6 +98,25 @@ export class ScriptEditor {
       Blockly.svgResize(this.ws);
       if (this.ws.getTopBlocks(false).length) this.ws.scrollCenter();
       this.updateCode();
+    });
+  }
+
+  /** Benannte Teile des Modells für die Auswahllisten der „Modell-Teile“-Blöcke */
+  private loadParts(obj: MapObjectData): void {
+    setScriptParts([]);
+    const ref = obj.type === 'model' ? String(obj.props.model ?? '') : '';
+    if (!ref) return;
+    void loadModel(ref).then((model) => {
+      if (!model || this.target !== obj) return;
+      const names = new Set<string>();
+      model.traverse((o) => {
+        if (!o.name || o === model) return;
+        // Meshes mit mehreren Materialien kommen als Gruppe "Tür" mit Kindern "Tür_1", "Tür_2" … — nur die Gruppe zählt
+        const tail = o.parent?.name && o.name.startsWith(o.parent.name + '_') ? o.name.slice(o.parent.name.length + 1) : '';
+        if ((o as { isMesh?: boolean }).isMesh && /^\d+$/.test(tail)) return;
+        names.add(o.name);
+      });
+      setScriptParts([...names]);
     });
   }
 
