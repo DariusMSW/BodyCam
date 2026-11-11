@@ -10,7 +10,7 @@ import { CAMERA_DROP, CAMERA_FORWARD, PlayerController } from './player/controll
 import { PlayerBody } from './player/body.ts';
 import { Shooter, isSolid } from './combat/shooting.ts';
 import { BodycamShader } from './rendering/postfx/bodycam.ts';
-import { FOLIAGE_DENSITY, FOLIAGE_DISTANCE, Settings, TERRAIN_DETAIL, keyLabel, type SettingsData } from './core/settings.ts';
+import { AA_SAMPLES, FOLIAGE_DENSITY, FOLIAGE_DISTANCE, Settings, TERRAIN_DETAIL, keyLabel, type SettingsData } from './core/settings.ts';
 import { Input } from './core/input.ts';
 import { Terminal } from './world/props/terminal.ts';
 import { loadMap, type MapNode } from './world/mapLoader.ts';
@@ -444,7 +444,7 @@ window.addEventListener('keydown', (e) => {
 // Zwei Ketten: die Szene (Geometrie, Kontaktschatten, Wasser, Volumen, God-Rays) in ein MSAA-Target,
 // die Nachbearbeitung (Bewegungsunschärfe, Bloom, Tonemapping, Linse) danach ohne MSAA – jeder Pass, der in
 // einen MSAA-Puffer schreibt, kostet sonst eine weitere Auflösung des ganzen Bildes.
-const renderTarget = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4, depthTexture: new THREE.DepthTexture(1, 1, THREE.FloatType) });
+const renderTarget = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: AA_SAMPLES[settings.data.antialias] ?? 4, depthTexture: new THREE.DepthTexture(1, 1, THREE.FloatType) });
 const sceneComposer = new EffectComposer(renderer, renderTarget);
 sceneComposer.renderToScreen = false;
 sceneComposer.setPixelRatio(pixelRatio());
@@ -480,7 +480,7 @@ composer.setPixelRatio(pixelRatio());
 composer.setSize(window.innerWidth, window.innerHeight);
 const motionBlur = new MotionBlurPass(camera, () => sceneComposer.readBuffer);
 composer.addPass(motionBlur);
-if (import.meta.env.DEV) Object.assign((window as unknown as { __game: object }).__game, { ao, autoExposure, motionBlur, godRays });
+if (import.meta.env.DEV) Object.assign((window as unknown as { __game: object }).__game, { ao, autoExposure, motionBlur, godRays, sceneComposer, composer });
 const BLOOM_BASE_STRENGTH = 0.55;
 const bloom = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), BLOOM_BASE_STRENGTH, 0.5, 1.0);
 composer.addPass(bloom);
@@ -533,6 +533,16 @@ const applySetting = (key: keyof SettingsData) => {
       ao.enabled = d.ao > 0;
       ao.setQuality(d.ao);
       break;
+    case 'antialias': {
+      // MSAA-Stufe des Szenenpuffers: Targets freigeben, three legt sie mit der neuen Sample-Zahl neu an
+      const samples = AA_SAMPLES[d.antialias] ?? 4;
+      for (const t of [sceneComposer.renderTarget1, sceneComposer.renderTarget2]) {
+        if (t.samples === samples) continue;
+        t.samples = samples;
+        t.dispose();
+      }
+      break;
+    }
     case 'motionBlur':
       motionBlur.strength = d.motionBlur;
       break;
@@ -590,7 +600,7 @@ const updateInfo = () => {
     `Mausrad Sichtweite · ${k('fog')} Nebel · ${k('hud')} Debug-Text`;
 };
 
-for (const k of ['brightness', 'fogEnabled', 'viewDistance', 'bloom', 'bloomStrength', 'renderScale', 'shadows', 'reflections', 'terrainDetail', 'ao', 'motionBlur', 'autoExposure', 'hudOverlay', 'bindings'] as const) {
+for (const k of ['brightness', 'fogEnabled', 'viewDistance', 'bloom', 'bloomStrength', 'renderScale', 'shadows', 'reflections', 'terrainDetail', 'ao', 'antialias', 'motionBlur', 'autoExposure', 'hudOverlay', 'bindings'] as const) {
   applySetting(k);
 }
 
@@ -839,7 +849,9 @@ function updateWaterFx(dt: number): void {
 
 renderer.setAnimationLoop(() => {
   timer.update();
-  const dt = Math.min(timer.getDelta(), 0.05);
+  // rawDt: echte Frame-Zeit (FPS-Anzeige); dt ist für Physik/Animation auf 50 ms gedeckelt
+  const rawDt = timer.getDelta();
+  const dt = Math.min(rawDt, 0.05);
   const t = timer.getElapsed();
 
   // Collider-Liste (Scripts bewegen Objekte, Foliage-Collider rund um den Spieler) → Rapier, danach den Spieler bewegen
@@ -970,7 +982,7 @@ renderer.setAnimationLoop(() => {
     void loading.finish();
   }
 
-  fpsAccum += dt;
+  fpsAccum += rawDt;
   fpsFrames++;
   if (fpsAccum >= 0.5) {
     fps = Math.round(fpsFrames / fpsAccum);

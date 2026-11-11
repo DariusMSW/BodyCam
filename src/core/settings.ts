@@ -51,6 +51,9 @@ export const SHADOW_LABELS = ['Aus', 'Niedrig', 'Hoch'];
 export const REFLECTION_LABELS = ['Aus', 'Niedrig', 'Hoch'];
 export const VOLUMETRIC_LABELS = ['Niedrig', 'Mittel', 'Hoch'];
 export const AO_LABELS = ['Aus', 'Niedrig', 'Hoch'];
+export const AA_LABELS = ['Aus', '2x', '4x'];
+/** MSAA-Samples des HDR-Szenenpuffers je Stufe (kostet auf schwachen GPUs viel Speicherbandbreite) */
+export const AA_SAMPLES = [0, 2, 4];
 export const TERRAIN_LABELS = ['Niedrig', 'Mittel', 'Hoch', 'Ultra'];
 /** Detail-Faktor der Landscape-LODs (Abstand, ab dem eine gröbere Stufe benutzt wird) */
 export const TERRAIN_DETAIL = [1.5, 2, 2.5, 3.5];
@@ -80,6 +83,7 @@ export interface SettingsData {
   reflections: number; // Index in REFLECTION_LABELS (Pfützen-Spiegelungen)
   volumetrics: number; // Index in VOLUMETRIC_LABELS (Nebel-Schritte, Partikelmenge)
   ao: number; // Index in AO_LABELS (Umgebungsverdeckung / Kontaktschatten)
+  antialias: number; // Index in AA_LABELS (MSAA der Szene)
   terrainDetail: number; // Index in TERRAIN_LABELS (Landscape-LOD)
   foliageDensity: number; // Index in FOLIAGE_LABELS (FOLIAGE_DENSITY)
   foliageDistance: number; // Index in FOLIAGE_LABELS (FOLIAGE_DISTANCE)
@@ -102,14 +106,14 @@ export interface SettingsData {
 }
 
 /** Optionen, die das Qualitäts-Preset setzt */
-const PRESET_KEYS = ['shadows', 'renderScale', 'bloom', 'reflections', 'volumetrics', 'ao', 'terrainDetail', 'foliageDensity', 'foliageDistance', 'grass'] as const;
+const PRESET_KEYS = ['shadows', 'renderScale', 'bloom', 'reflections', 'volumetrics', 'ao', 'antialias', 'terrainDetail', 'foliageDensity', 'foliageDistance', 'grass'] as const;
 type PresetKey = (typeof PRESET_KEYS)[number];
 
 export const QUALITY_PRESETS: Pick<SettingsData, PresetKey>[] = [
-  { shadows: 0, renderScale: 0.75, bloom: false, reflections: 0, volumetrics: 0, ao: 0, terrainDetail: 0, foliageDensity: 0, foliageDistance: 0, grass: false },
-  { shadows: 1, renderScale: 1.0, bloom: true, reflections: 1, volumetrics: 1, ao: 1, terrainDetail: 1, foliageDensity: 1, foliageDistance: 1, grass: true },
-  { shadows: 2, renderScale: 1.0, bloom: true, reflections: 2, volumetrics: 2, ao: 2, terrainDetail: 2, foliageDensity: 2, foliageDistance: 2, grass: true },
-  { shadows: 2, renderScale: 1.5, bloom: true, reflections: 2, volumetrics: 2, ao: 2, terrainDetail: 3, foliageDensity: 3, foliageDistance: 3, grass: true },
+  { shadows: 0, renderScale: 0.75, bloom: false, reflections: 0, volumetrics: 0, ao: 0, antialias: 0, terrainDetail: 0, foliageDensity: 0, foliageDistance: 0, grass: false },
+  { shadows: 1, renderScale: 1.0, bloom: true, reflections: 1, volumetrics: 1, ao: 1, antialias: 1, terrainDetail: 1, foliageDensity: 1, foliageDistance: 1, grass: true },
+  { shadows: 2, renderScale: 1.0, bloom: true, reflections: 2, volumetrics: 2, ao: 2, antialias: 2, terrainDetail: 2, foliageDensity: 2, foliageDistance: 2, grass: true },
+  { shadows: 2, renderScale: 1.5, bloom: true, reflections: 2, volumetrics: 2, ao: 2, antialias: 2, terrainDetail: 3, foliageDensity: 3, foliageDistance: 3, grass: true },
 ];
 
 const DEFAULTS: SettingsData = {
@@ -127,6 +131,7 @@ const DEFAULTS: SettingsData = {
   reflections: 2,
   volumetrics: 2,
   ao: 2,
+  antialias: 2,
   terrainDetail: 2,
   foliageDensity: 2,
   foliageDistance: 2,
@@ -163,6 +168,8 @@ export class Settings {
       if (raw) {
         const parsed = JSON.parse(raw) as Partial<SettingsData>;
         this.data = { ...this.data, ...parsed, bindings: { ...DEFAULT_BINDINGS, ...(parsed.bindings ?? {}) } };
+        // Kantenglättung kam später dazu: alte Speicherstände übernehmen den Wert ihres Presets (Niedrig = aus)
+        if (parsed.antialias === undefined) this.data.antialias = QUALITY_PRESETS[this.data.quality]?.antialias ?? DEFAULTS.antialias;
       }
     } catch {
       // Speicher nicht verfügbar → Standardwerte

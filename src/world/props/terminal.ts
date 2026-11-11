@@ -14,6 +14,7 @@ import {
   REFLECTION_LABELS,
   VOLUMETRIC_LABELS,
   AO_LABELS,
+  AA_LABELS,
   TERRAIN_LABELS,
   FOLIAGE_LABELS,
   keyLabel,
@@ -384,10 +385,10 @@ export class Terminal {
     ui.text('GRAFIK', x, 112, 30, THEME.text, 'left', 'bold');
     // Preset-Auswahl: "Benutzerdefiniert" ist nur Anzeige, Weiterklicken springt zu den Presets
     const presets = QUALITY_LABELS.length - 1;
-    // zwei Spalten (14 Optionen), kurze Beschriftungen
+    // zwei Spalten (17 Optionen), kurze Beschriftungen
     const cw = (w - 16) / 2;
     const x2 = x + cw + 16;
-    const y = (i: number) => 140 + i * 56;
+    const y = (i: number) => 140 + i * 52;
     const q = ui.select(x, y(0), cw, 'Qualität', QUALITY_LABELS, d.quality);
     if (q !== d.quality) this.settings.applyQuality(q >= presets ? (d.quality === 0 ? presets - 1 : 0) : q);
     this.settings.set('shadows', ui.select(x, y(1), cw, 'Schatten', SHADOW_LABELS, d.shadows));
@@ -397,6 +398,7 @@ export class Terminal {
     this.settings.set('brightness', ui.slider('bright', x, y(5), cw, 'Helligkeit', d.brightness, 0.5, 1.6, 0.05, pct));
     this.settings.set('fogEnabled', ui.toggle(x, y(6), cw, 'Nebel', d.fogEnabled));
     this.settings.set('godRays', ui.slider('godRays', x, y(7), cw, 'God-Rays', d.godRays, 0, 2, 0.05, pct));
+    this.settings.set('antialias', ui.select(x, y(8), cw, 'Kantenglättung', AA_LABELS, d.antialias));
     const vs = this.settings.viewScale;
     this.settings.set('viewDistance', ui.slider('view', x2, y(0), cw, 'Sichtweite', d.viewDistance, 5, 60, 1, (v) => `${Math.round(v * vs)} m`));
     this.settings.set('reflections', ui.select(x2, y(1), cw, 'Spiegelungen', REFLECTION_LABELS, d.reflections));
@@ -406,8 +408,8 @@ export class Terminal {
     this.settings.set('foliageDistance', ui.select(x2, y(5), cw, 'Foliage-Weite', FOLIAGE_LABELS, d.foliageDistance));
     this.settings.set('grass', ui.toggle(x2, y(6), cw, 'Gras', d.grass));
     this.settings.set('ao', ui.select(x2, y(7), cw, 'Kontaktschatten', AO_LABELS, d.ao));
-    ui.text('Auflösung bezieht sich auf die Pixeldichte des Displays (max. 2x).', x, y(8) + 14, 17, THEME.dim);
-    ui.text('Foliage-Dichte dünnt nur Deko ohne Kollision und Sichtschutz aus (z. B. Grasbüschel).', x, y(8) + 40, 17, THEME.dim);
+    ui.text('Auflösung bezieht sich auf die Pixeldichte des Displays (max. 2x).', x, y(9) + 14, 17, THEME.dim);
+    ui.text('Foliage-Dichte dünnt nur Deko ohne Kollision und Sichtschutz aus (z. B. Grasbüschel).', x, y(9) + 40, 17, THEME.dim);
   }
 
   private drawBodycam(x: number, w: number): void {

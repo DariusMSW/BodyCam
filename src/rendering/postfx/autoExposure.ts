@@ -8,7 +8,9 @@ import { FULLSCREEN_VERTEX } from './depth.ts';
  * überstrahlt und fängt sich dann; im Dunkeln hellt die Kamera langsam etwas auf.
  *
  * Messung: Bild → kleines Target mit log2(Luminanz) (mittenbetont) → Mip-Kette bis 1×1 → asynchrones Auslesen
- * (blockiert die GPU nicht). Die Regelung selbst läuft auf der CPU; das Ergebnis (exposure) multipliziert
+ * über einen Pixel-Buffer + Fence. Abgeholt wird erst, wenn die Fence am Frame-Anfang schon signalisiert ist:
+ * readRenderTargetPixelsAsync von three fragt per Timer mitten in den nächsten Frame hinein ab, und das
+ * getBufferSubData wartet dann (Chrome/ANGLE) auf die ganze GPU-Warteschlange – das halbierte die Bildrate. Die Regelung selbst läuft auf der CPU; das Ergebnis (exposure) multipliziert
  * der Aufrufer in renderer.toneMappingExposure. Der Regelbereich ist bewusst eng: dunkle Szenen sollen
  * dunkel bleiben.
  */
@@ -72,7 +74,11 @@ export class AutoExposure extends Pass {
   private avgMat = new THREE.ShaderMaterial({ ...avgShader, uniforms: THREE.UniformsUtils.clone(avgShader.uniforms), depthTest: false, depthWrite: false });
   private quad = new FullScreenQuad();
   private buffer = new Float32Array(4);
-  private pending = false;
+  private gl: WebGL2RenderingContext | null = null;
+  private pbo: WebGLBuffer | null = null;
+  private sync: WebGLSync | null = null;
+  /** Frames seit dem Absenden der laufenden Messung */
+  private age = 0;
   private failed = false;
   private frame = 0;
 
@@ -92,8 +98,25 @@ export class AutoExposure extends Pass {
   }
 
   render(renderer: THREE.WebGLRenderer, _writeBuffer: THREE.WebGLRenderTarget, readBuffer: THREE.WebGLRenderTarget, deltaTime: number): void {
-    // alle 3 Frames messen; das Auslesen kommt ein, zwei Frames später an
-    if (!this.failed && !this.pending && this.frame++ % 3 === 0) {
+    const gl = (this.gl = renderer.getContext() as WebGL2RenderingContext);
+    // laufende Messung abholen – nur wenn die GPU sie sicher fertig hat (sonst blockiert getBufferSubData)
+    if (this.sync) {
+      this.age++;
+      if (this.age >= 2 && gl.getSyncParameter(this.sync, gl.SYNC_STATUS) === gl.SIGNALED) {
+        gl.bindBuffer(gl.PIXEL_PACK_BUFFER, this.pbo);
+        gl.getBufferSubData(gl.PIXEL_PACK_BUFFER, 0, this.buffer);
+        gl.bindBuffer(gl.PIXEL_PACK_BUFFER, null);
+        gl.deleteSync(this.sync);
+        this.sync = null;
+        if (Number.isFinite(this.buffer[0])) this.measured = this.buffer[0];
+      } else if (this.age > 120) {
+        // Fence hängt (Kontextverlust o. Ä.) → neu anfangen
+        gl.deleteSync(this.sync);
+        this.sync = null;
+      }
+    }
+    // alle 4 Frames messen (die Regelung ist träge, öfter bringt nichts)
+    if (!this.failed && !this.sync && this.frame++ % 4 === 0) {
       const autoClear = renderer.autoClear;
       renderer.autoClear = false;
       this.lumMat.uniforms.tDiffuse.value = readBuffer.texture;
@@ -105,19 +128,7 @@ export class AutoExposure extends Pass {
       renderer.setRenderTarget(this.pixRT);
       this.quad.render(renderer);
       renderer.autoClear = autoClear;
-      this.pending = true;
-      renderer
-        .readRenderTargetPixelsAsync(this.pixRT, 0, 0, 1, 1, this.buffer)
-        .then(() => {
-          if (Number.isFinite(this.buffer[0])) this.measured = this.buffer[0];
-          this.pending = false;
-        })
-        .catch((e) => {
-          // kein lesbares Float-Target auf diesem Gerät → Automatik bleibt neutral
-          console.warn('Belichtungsautomatik deaktiviert:', e);
-          this.failed = true;
-          this.exposure = 1;
-        });
+      this.requestRead(renderer, gl);
     }
     if (this.failed || !Number.isFinite(this.measured)) return;
     const target = THREE.MathUtils.clamp(Math.pow(2, (this.keyLog - this.measured) * this.compensation), this.minExposure, this.maxExposure);
@@ -126,7 +137,36 @@ export class AutoExposure extends Pass {
     this.exposure += (target - this.exposure) * (1 - Math.exp(-Math.min(deltaTime, 0.1) * speed));
   }
 
+  /** Den 1×1-Pixel des Mess-Targets asynchron in einen Pixel-Buffer kopieren und eine Fence dahinter setzen */
+  private requestRead(renderer: THREE.WebGLRenderer, gl: WebGL2RenderingContext): void {
+    // pixRT ist durch setRenderTarget oben gebunden
+    if (!this.pbo) {
+      this.pbo = gl.createBuffer();
+      gl.bindBuffer(gl.PIXEL_PACK_BUFFER, this.pbo);
+      gl.bufferData(gl.PIXEL_PACK_BUFFER, this.buffer.byteLength, gl.STREAM_READ);
+      gl.bindBuffer(gl.PIXEL_PACK_BUFFER, null);
+    }
+    // Float-RGBA ist mit EXT_color_buffer_float (von three aktiviert) immer lesbar; ohne die Erweiterung
+    // gäbe es das HalfFloat-Szenen-Target gar nicht. Kein getError(): wäre in Chrome ein synchroner Roundtrip.
+    if (!renderer.extensions.has('EXT_color_buffer_float')) {
+      console.warn('Belichtungsautomatik deaktiviert: kein lesbares Float-Target');
+      this.failed = true;
+      this.exposure = 1;
+      return;
+    }
+    gl.bindBuffer(gl.PIXEL_PACK_BUFFER, this.pbo);
+    gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.FLOAT, 0);
+    gl.bindBuffer(gl.PIXEL_PACK_BUFFER, null);
+    this.sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0);
+    this.age = 0;
+  }
+
   dispose(): void {
+    if (this.gl) {
+      if (this.sync) this.gl.deleteSync(this.sync);
+      if (this.pbo) this.gl.deleteBuffer(this.pbo);
+    }
+    this.sync = this.pbo = null;
     this.lumRT.dispose();
     this.pixRT.dispose();
     this.lumMat.dispose();

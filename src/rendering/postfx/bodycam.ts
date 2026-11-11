@@ -10,13 +10,13 @@ export const BodycamShader = {
     uResolution: { value: new THREE.Vector2(1, 1) },
     uDistortion: { value: 0.24 },
     uAberration: { value: 0.007 },
-    uGrain: { value: 0.075 },
+    uGrain: { value: 0.085 },
     uVignette: { value: 0.8 },
     uGlitch: { value: 0 },
     uExposure: { value: 1 },
     uRainLens: { value: 0 },
     // Unterwasser (0..1) und Wasserfarbe
-    uUnderwater: { value: 0 },
+    uUnderwater: { value: 0.2 },
     uWaterTint: { value: new THREE.Color(0x103038) },
   },
   vertexShader: /* glsl */ `

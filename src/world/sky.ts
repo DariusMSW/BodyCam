@@ -128,7 +128,11 @@ export class Sky {
     this.mesh = new THREE.Mesh(new THREE.SphereGeometry(500, 48, 24), material);
     this.mesh.name = 'Sky';
     this.mesh.frustumCulled = false;
-    this.mesh.renderOrder = -1000;
+    // Als letztes opakes Objekt zeichnen: der Tiefentest (Far-Plane, LessEqual) verwirft dann alle von
+    // Geometrie verdeckten Pixel vor dem Shader. Zuerst gezeichnet schattiert der Himmel den ganzen
+    // Bildschirm, der danach übermalt wird – auf schwachen GPUs ein spürbarer Teil der Frame-Zeit.
+    // Transparentes (Wasser, Partikel, Volumen) liegt in einer eigenen Liste und kommt ohnehin danach.
+    this.mesh.renderOrder = 100000;
     this.mesh.userData.noPick = true;
     this.mesh.userData.noShot = true;
     this.mesh.raycast = () => {};
