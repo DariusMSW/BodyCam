@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { RAPIER, WORLD_MEMBER, type PhysicsWorld } from './physics.ts';
 import type { MapNode } from '../world/mapLoader.ts';
 import type { Collider } from '../world/collision.ts';
-import { waterAt, waterImpulse, waterSplash, type WaterSample } from '../world/water/registry.ts';
+import { waterAt, waterImpulse, waterObstacle, waterSplash, type WaterSample } from '../world/water/registry.ts';
 
 // Simulierte Props (Phase 6): Objekte mit „Physik › Simuliert“ werden zu dynamischen Rapier-Körpern.
 // Auftrieb an 8 Stützpunkten (Ecken der Hülle, leicht nach innen): je Punkt ein Achtel des Volumens,
@@ -74,6 +74,11 @@ export class DynamicProps {
       if (node.instance.ready) void node.instance.ready.then(add);
       else add();
     }
+  }
+
+  /** Wurzeln der simulierten Objekte (bewegen sich — keine festen Hindernisse für die Wellen) */
+  get roots(): THREE.Object3D[] {
+    return this.props.map((p) => p.node.root);
   }
 
   get count(): number {
@@ -203,6 +208,8 @@ export class DynamicProps {
           waterImpulse(cx, cz, 0.8 + p.size, -0.08 - strength * 0.2);
           this.onSplash?.({ pos: at, strength });
         }
+        // ragt durch die Oberfläche: Hindernis für die Wellenringe (Reflexion, Anströmung)
+        if (wetNow < 0.98) waterObstacle(cx, cz, Math.max(0.12, p.size * 0.9), flowX / submerged - lv.x, flowZ / submerged - lv.z, Math.min(1, 0.4 + p.size));
         // Bugwelle beim Treiben/Schieben
         p.wakeT -= dt;
         const rel = Math.hypot(lv.x - flowX / submerged, lv.z - flowZ / submerged) + Math.abs(lv.y) * 0.5;

@@ -5,7 +5,8 @@ import { WATER_TIME, type WaterLook } from './registry.ts';
 // Wasser-Material (See, Fluss, Meer). Gezeichnet vom WaterPass direkt nach der opaken Szene:
 //  - Gerstner-Wellen im Vertex-Shader (dieselben wie waterAt() auf der CPU), in der Ferne ausgeblendet
 //  - Detail-Normalen aus einer kachelbaren Rauschtextur, bei Flüssen per Flow-Map (zweiphasig) in Strömungsrichtung
-//  - Wellenringe aus der GPU-Ripple-Simulation (Schritte, Kugeln, Objekte)
+//  - Wellenringe aus der GPU-Ripple-Simulation (Schritte, Kugeln, Objekte, Anströmung)
+//  - an Kanten (Hindernis-Maske der Ripple-Simulation): feineres Detail und Strömungsschaum an Ufern/Objekten
 //  - Refraktion: Szene hinter dem Wasser (aufgelöste Farb-/Tiefentextur des MSAA-Puffers), verzerrt durch die Normale
 //  - Tiefenfarbe: Absorption nach Beer-Lambert über die Wasserdicke, Trübung streut zur Wasserfarbe
 //  - Uferschaum aus der Tiefendifferenz, Schaum auf Wellenkämmen
@@ -30,6 +31,8 @@ export const waterShared = {
   uReflY: { value: 0 },
   tRipple: { value: null as THREE.Texture | null },
   uRippleArea: { value: new THREE.Vector4(0, 0, 64, 0) },
+  tRippleMask: { value: null as THREE.Texture | null },
+  uMaskArea: { value: new THREE.Vector4(0, 0, 96, 0) },
   tDetail: { value: null as THREE.Texture | null },
   uSkyZenith: { value: new THREE.Color(0x5a7da8) },
   uSkyHorizon: { value: new THREE.Color(0xa8bccc) },
@@ -158,6 +161,8 @@ uniform mat4 uReflMatrix;
 uniform float uReflOn, uReflY;
 uniform sampler2D tRipple;
 uniform vec4 uRippleArea; // xy = Mitte, z = Größe, w = an
+uniform sampler2D tRippleMask;
+uniform vec4 uMaskArea; // xy = Mitte, z = Größe, w = gültig
 uniform sampler2D tDetail;
 uniform vec3 uSkyZenith, uSkyHorizon, uSunDir, uSunColor, uAmbient;
 uniform vec3 uColor;
@@ -232,6 +237,16 @@ vec2 rippleGrad(vec2 p, out float h) {
   return vec2(hx, hz) / (2.0 * e * uRippleArea.z) * k;
 }
 
+/** Nähe zur nächsten Kante/zum nächsten Objekt (0..1, 1 = direkt daneben) aus der Hindernis-Maske */
+float edgeNear(vec2 p) {
+  if (uMaskArea.w < 0.5) return 0.0;
+  vec2 m = (p - uMaskArea.xy) / uMaskArea.z + 0.5;
+  if (m.x <= 0.0 || m.y <= 0.0 || m.x >= 1.0 || m.y >= 1.0) return 0.0;
+  float r = texture2D(tRippleMask, m).r;
+  vec2 b = min(m, 1.0 - m);
+  return (r > 0.75 ? 1.0 : r * 2.0) * smoothstep(0.0, 0.06, min(b.x, b.y));
+}
+
 void main() {
 #ifdef EDGE_CLIP
   if (vEdge < 0.5) discard;
@@ -243,10 +258,21 @@ void main() {
 
   // Normale: Wellen + Detail (in der Ferne schwächer gegen Flimmern) + Wellenringe
   float detailK = uDetailStrength * (1.0 - smoothstep(30.0, 260.0, camDist) * 0.75);
-  vec2 g = detail(vWPos.xz) * detailK;
+  float nearCam = 1.0 - smoothstep(20.0, 80.0, camDist);
+  float edgeK = edgeNear(vWPos.xz) * nearCam;
+  float flowSp = length(vFlow);
+  vec2 g = detail(vWPos.xz) * detailK * (1.0 + edgeK * 0.7);
+  // an Kanten: zusätzliche feine, unruhige Kräuselung (stärker, wenn das Wasser dort strömt)
+  if (edgeK > 0.01) {
+    vec2 fuv = vWPos.xz * (3.7 / uDetailScale);
+    vec2 ft2 = vec2(uWaterTime * 0.11, -uWaterTime * 0.08) * (1.0 + min(flowSp, 3.0));
+    g += (detailGrad(fuv + ft2) - detailGrad(fuv * 1.6 - ft2.yx + 0.31) * 0.6) * edgeK * uDetailStrength * (0.35 + min(flowSp, 2.0) * 0.35);
+  }
   float rh;
   vec2 rg = rippleGrad(vWPos.xz, rh);
-  vec3 N = normalize(vWaveN + vec3(-g.x - rg.x * 1.4, 0.0, -g.y - rg.y * 1.4));
+  // Wellenringe nah an der Kamera deutlicher (Waten, Schritte, Bugwelle)
+  float rk = 1.6 + nearCam * 1.4;
+  vec3 N = normalize(vWaveN + vec3(-g.x - rg.x * rk, 0.0, -g.y - rg.y * rk));
   if (!front) N = -N;
 
   vec2 suv = gl_FragCoord.xy / uScreen;
@@ -316,8 +342,11 @@ void main() {
     float fn = texture2D(tDetail, vWPos.xz * 0.21 + vec2(uWaterTime * 0.02, 0.0)).b * 0.6 + mix(fa, fb, abs(1.0 - 2.0 * fp0)) * 0.4;
     float shore = (1.0 - smoothstep(0.0, uShore, vthick)) * step(0.5, uSceneOn);
     float crest = smoothstep(0.5, 0.95, vCrest) * vFade;
-    float flowFoam = smoothstep(1.2, 4.0, length(vFlow)) * 0.35;
-    float foam = clamp((shore * 1.2 + crest * 0.8 + flowFoam + clamp(rh * 6.0, 0.0, 1.0) * 0.6) * uFoam, 0.0, 1.0);
+    float flowFoam = smoothstep(1.2, 4.0, flowSp) * 0.35;
+    // angeströmte Kanten/Objekte: Schaumstreifen und Wirbel
+    float edgeFoam = edgeK * edgeK * smoothstep(0.25, 1.5, flowSp) * 0.8;
+    float rippleFoam = clamp(rh * 6.0, 0.0, 1.0) * 0.6 + smoothstep(0.35, 1.2, length(rg)) * 0.25 * nearCam;
+    float foam = clamp((shore * 1.2 + crest * 0.8 + flowFoam + edgeFoam + rippleFoam) * uFoam, 0.0, 1.0);
     foam *= smoothstep(0.25, 0.75, fn + foam * 0.35);
     col = mix(col, light * 0.95, foam);
   } else {

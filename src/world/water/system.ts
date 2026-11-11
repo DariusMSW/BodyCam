@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import { Pass } from 'three/examples/jsm/postprocessing/Pass.js';
 import type { WorldRig } from '../mapLoader.ts';
 import { WATER_LAYER, waterShared } from './material.ts';
-import { advanceWater, takeImpulses, takeSplashes, waterAt, waterBodies, type WaterSample } from './registry.ts';
+import { advanceWater, takeImpulses, takeObstacles, takeSplashes, waterAt, waterBodies, type WaterSample } from './registry.ts';
+import { RippleMask } from './rippleMask.ts';
 import { RippleSim } from './ripples.ts';
 import { WaterSplashes } from './splash.ts';
 
@@ -26,10 +27,13 @@ export interface WaterEnv {
   sky?: () => { zenith: THREE.Color; horizon: THREE.Color } | null;
   /** in Spiegelung ausgeblendete Objekte (Spielerkörper, Wetter-Partikel, Helfer) */
   hidden?: () => THREE.Object3D[];
+  /** bewegte Objekte, die nicht als feste Hindernisse in die Wellen-Maske sollen (melden sich per waterObstacle) */
+  dynamic?: () => THREE.Object3D[];
 }
 
 export class WaterSystem {
   readonly ripples: RippleSim;
+  readonly mask: RippleMask;
   readonly splashes = new WaterSplashes();
   private quality: WaterReflectionQuality = 2;
   private reflTarget: THREE.WebGLRenderTarget | null = null;
@@ -46,10 +50,13 @@ export class WaterSystem {
     private rig: WorldRig | null,
     private env: WaterEnv = {},
   ) {
-    this.ripples = new RippleSim(renderer);
+    this.mask = new RippleMask(renderer);
+    this.ripples = new RippleSim(renderer, { texture: this.mask.target.texture, area: this.mask.area });
     scene.add(this.splashes.points);
     waterShared.tRipple.value = this.ripples.texture;
     waterShared.uRippleArea.value = this.ripples.area;
+    waterShared.tRippleMask.value = this.mask.target.texture;
+    waterShared.uMaskArea.value = this.mask.area;
   }
 
   setRig(rig: WorldRig | null): void {
@@ -93,14 +100,29 @@ export class WaterSystem {
 
     // Wellenringe nur, wenn Wasser in der Nähe ist
     let near = false;
+    let refY = NaN;
+    let best = Infinity;
     for (const b of bodies) {
       const bx = b.box;
       if (cam.x > bx.minX - 40 && cam.x < bx.maxX + 40 && cam.z > bx.minZ - 40 && cam.z < bx.maxZ + 40 && Math.abs(cam.y - b.level) < 60) {
         near = true;
-        break;
+        const dx = Math.max(bx.minX - cam.x, 0, cam.x - bx.maxX);
+        const dz = Math.max(bx.minZ - cam.z, 0, cam.z - bx.maxZ);
+        const score = Math.hypot(dx, dz) + Math.abs(cam.y - b.level) * 0.5;
+        if (score < best) {
+          best = score;
+          refY = b.level;
+        }
       }
     }
+    // Hindernis-Maske (Ufer, Objekte, Strömung): Wasserhöhe an der Kamera ist genauer als die Ebene der Fläche
+    if (near) {
+      if (w && Math.abs(w.base - refY) < 20) refY = w.base;
+      const hidden = [...(this.env.hidden?.() ?? []), ...(this.env.dynamic?.() ?? []), this.splashes.points];
+      this.mask.update(dt, cam.x, cam.z, refY, this.scene, hidden);
+    } else this.mask.reset();
     this.ripples.add(takeImpulses());
+    this.ripples.setObstacles(takeObstacles());
     this.ripples.update(dt, cam.x, cam.z, near);
     waterShared.tRipple.value = this.ripples.texture;
     for (const s of takeSplashes()) this.splashes.spawn(s);
@@ -214,6 +236,7 @@ export class WaterSystem {
     this.scene.remove(this.splashes.points);
     this.splashes.dispose();
     this.ripples.dispose();
+    this.mask.dispose();
     this.reflTarget?.dispose();
   }
 }

@@ -135,6 +135,33 @@ export function waterSplash(pos: THREE.Vector3, strength: number, vel?: THREE.Ve
   splashes.push({ pos: pos.clone(), strength, vel: vel?.clone() });
 }
 
+/** Bewegliches Hindernis im Wasser (Spieler, treibende Objekte) — gilt nur für den aktuellen Frame */
+export interface WaterObstacle {
+  x: number;
+  z: number;
+  /** Radius in m (innen: feste Wand für die Wellenringe) */
+  radius: number;
+  /** Strömung relativ zum Hindernis (Wasser − Hindernis) in m/s */
+  flowX: number;
+  flowZ: number;
+  /** Stärke der Wellen an der Anströmseite/im Kielwasser (0..1) */
+  strength: number;
+}
+
+export const MAX_OBSTACLES = 8;
+const obstacles: WaterObstacle[] = [];
+
+/** Hindernis für diesen Frame melden: Wellen werden daran reflektiert, Anströmung erzeugt Bugwelle und Wirbel */
+export function waterObstacle(x: number, z: number, radius: number, flowX: number, flowZ: number, strength = 1): void {
+  if (!bodies.size || obstacles.length >= MAX_OBSTACLES) return;
+  obstacles.push({ x, z, radius, flowX, flowZ, strength });
+}
+
+/** Hindernisse abholen (leert die Liste) */
+export function takeObstacles(): WaterObstacle[] {
+  return obstacles.splice(0, obstacles.length);
+}
+
 /** Ereignisse abholen (leert die Liste) */
 export function takeImpulses(): WaterImpulse[] {
   return impulses.splice(0, impulses.length);

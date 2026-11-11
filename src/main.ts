@@ -40,7 +40,7 @@ import { weatherSurface, type SurfaceId } from './world/surfaces.ts';
 import { roadSurfaceAt } from './world/splines/zones.ts';
 import { playFootstep, playLanding, playWater, setAudioUnderwater, unlockAudio } from './audio/footsteps.ts';
 import { WaterPass, WaterSystem } from './world/water/system.ts';
-import { rayWater, waterImpulse, waterSplash } from './world/water/registry.ts';
+import { rayWater, waterImpulse, waterObstacle, waterSplash } from './world/water/registry.ts';
 import { DynamicProps } from './physics/dynamicProps.ts';
 import { landscapeOf } from './world/landscape/asset.ts';
 import { SCALE } from './world/collision.ts';
@@ -201,6 +201,7 @@ applyWeather();
 const water = new WaterSystem(renderer, scene, level.world, {
   sky: () => weather.skyColors,
   hidden: () => [...new Set([...weather.passHidden, body.root])],
+  dynamic: () => dynProps.roots,
 });
 // Simulierte Props (Fässer, Kisten): Rapier-Körper mit Auftrieb und Strömung
 const dynProps = new DynamicProps(physics, level.nodes, level.colliders);
@@ -788,6 +789,7 @@ let uwBlend = 0;
 let uwActive = false;
 let savedBg: THREE.Scene['background'] = null;
 let wakeTimer = 0;
+let idleRipple = 0;
 const breathEl = document.createElement('div');
 breathEl.style.cssText =
   'position:absolute;bottom:16vh;left:50%;transform:translateX(-50%);width:180px;height:5px;border:1px solid rgba(232,232,224,.55);display:none;pointer-events:none';
@@ -838,12 +840,27 @@ function updateWaterFx(dt: number): void {
   // Bugwelle/Wellenringe beim Waten und Schwimmen
   if (pw.state !== 'none' && pw.state !== 'dive') {
     const v = player.velocity;
+    const f = player.feet;
+    const wade = pw.state === 'wade';
+    // Beine/Körper als Hindernis: Wellen werden reflektiert, Strömung (oder eigenes Gehen) staut sich davor
+    // und wirbelt dahinter — so entstehen auch im Stehen Wellen, wenn das Wasser gegen den Spieler fließt
+    const relX = pw.flowX - v.x;
+    const relZ = pw.flowZ - v.z;
+    const k = wade ? THREE.MathUtils.clamp(pw.depth / 0.45, 0.25, 1) : 1;
+    waterObstacle(f.x, f.z, wade ? 0.2 : 0.28, relX, relZ, k);
     const sp = Math.hypot(v.x - pw.flowX, v.z - pw.flowZ);
     wakeTimer -= dt;
     if (sp > 0.3 && wakeTimer <= 0) {
       wakeTimer = 0.12;
-      const f = player.feet;
-      waterImpulse(f.x, f.z, pw.state === 'wade' ? 0.4 : 0.6, -Math.min(0.06, sp * 0.015));
+      waterImpulse(f.x, f.z, wade ? 0.4 : 0.6, -Math.min(0.06, sp * 0.015));
+    }
+    // Stillstehen/Wassertreten: leichtes Schwanken erzeugt immer wieder kleine Ringe
+    idleRipple -= dt;
+    if (Math.hypot(v.x, v.z) < 0.5 && idleRipple <= 0) {
+      idleRipple = (wade ? 0.55 : 0.35) + Math.random() * 0.7;
+      const a = Math.random() * Math.PI * 2;
+      const r = 0.22 + Math.random() * 0.12;
+      waterImpulse(f.x + Math.cos(a) * r, f.z + Math.sin(a) * r, 0.35, -(wade ? 0.012 : 0.02) * k - Math.random() * 0.012);
     }
   }
 }
